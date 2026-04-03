@@ -446,3 +446,13 @@ if (document.readyState === 'loading') {
 } else {
   initLaptopQuest()
 }
+
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'e') {
+    // чтобы не открывалось 100 раз
+    const overlay = document.getElementById('quest-overlay')
+    if (overlay && overlay.style.display !== 'flex') {
+      window.openLaptopQuest()
+    }
+  }
+})
