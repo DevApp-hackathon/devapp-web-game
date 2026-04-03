@@ -1,7 +1,5 @@
 import Phaser from 'phaser'
 
-const scenarios = window.QUEST_DATA
-
 export default class SituationScene extends Phaser.Scene {
   constructor() {
     super('SituationScene')
@@ -13,11 +11,15 @@ export default class SituationScene extends Phaser.Scene {
   }
 
   create() {
-    const scenario = scenarios[this.scenarioId]
-    if (!scenario) {
+    const scenarios = window.QUEST_DATA
+
+    if (!scenarios) {
+      console.error('QUEST_DATA не загружен')
       this.closeScene()
       return
     }
+
+    const scenario = scenarios[this.scenarioId]
 
     // Затемнение фона
     this.add.rectangle(640, 360, 1280, 720, 0x000000, 0.75)
