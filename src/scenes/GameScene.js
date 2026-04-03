@@ -6,18 +6,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.spritesheet('player', '/assets/player.png', { frameWidth: 64, frameHeight: 64 })
-    this.load.image('spr-desk', '/assets/Desk-2.png')
-    this.load.image('spr-server', '/assets/server-rack.png')
-    this.load.image('spr-board', '/assets/Board.png')
-    this.load.image('spr-monitor', '/assets/Wall-Graph.png')
-    this.load.image('spr-bookshelf', '/assets/Tall-Bookshelf.png')
-    this.load.image('spr-coffee', '/assets/Coffee-Machine.png')
-    this.load.image('spr-plant', '/assets/Big-Plant.png')
-    this.load.image('spr-sofa', '/assets/Big-Sofa.png')
-    this.load.image('spr-vending', '/assets/Vending-Machine.png')
-    this.load.image('spr-printer', '/assets/Printer.png')
-    this.load.image('spr-pingpong', '/assets/pingpong-paddle.png')
+    this.load.spritesheet('player', 'assets/player.png', { frameWidth: 64, frameHeight: 64 })
+    this.load.image('spr-desk', 'assets/Desk-2.png')
+    this.load.image('spr-server', 'assets/server-rack.png')
+    this.load.image('spr-board', 'assets/Board.png')
+    this.load.image('spr-monitor', 'assets/Wall-Graph.png')
+    this.load.image('spr-bookshelf', 'assets/Tall-Bookshelf.png')
+    this.load.image('spr-coffee', 'assets/Coffee-Machine.png')
+    this.load.image('spr-plant', 'assets/Big-Plant.png')
+    this.load.image('spr-sofa', 'assets/Big-Sofa.png')
+    this.load.image('spr-vending', 'assets/Vending-Machine.png')
+    this.load.image('spr-printer', 'assets/Printer.png')
+    this.load.image('spr-pingpong', 'assets/pingpong-paddle.png')
   }
 
   create() {
