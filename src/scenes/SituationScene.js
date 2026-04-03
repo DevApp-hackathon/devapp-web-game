@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
-import { scenarios } from '../scenarios.js'
+
+const scenarios = window.QUEST_DATA
 
 export default class SituationScene extends Phaser.Scene {
   constructor() {
@@ -12,7 +13,7 @@ export default class SituationScene extends Phaser.Scene {
   }
 
   create() {
-    const scenario = scenarios.find(s => s.id === this.scenarioId)
+    const scenario = scenarios[this.scenarioId]
     if (!scenario) {
       this.closeScene()
       return

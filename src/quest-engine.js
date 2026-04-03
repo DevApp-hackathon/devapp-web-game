@@ -965,3 +965,5 @@ if (document.readyState === 'loading') {
 } else {
   initQuestEngine()
 }
+
+window.QUEST_DATA = QUEST_DATA
