@@ -1,7 +1,3 @@
-import './quest-laptop.js'
-import './planning.js'
-import './quest-engine.js'
-
 import Phaser from 'phaser'
 import { scenarios } from './scenarios.js'
 // Делаем данные сценариев доступными глобально для GameScene
