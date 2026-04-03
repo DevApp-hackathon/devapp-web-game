@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <title>DevOps Startup</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-    /* ✅ ОБЩИЙ overlay */
+    /* QUEST overlay */
     #quest-overlay {
       display: none;
       position: fixed;
@@ -20,10 +27,19 @@
       align-items: center;
       font-family: 'Press Start 2P', monospace;
     }
-    #quest-overlay.active {
-      display: flex;
+
+    #quest-panel {
+      background:#12122a;
+      border:2px solid #00d4ff;
+      border-radius:8px;
+      padding:28px;
+      width:680px;
+      max-height:90vh;
+      overflow-y:auto;
+      position:relative;
     }
 
+    /* planning overlay */
     #planning-overlay {
       display: none;
       position: fixed;
@@ -34,7 +50,6 @@
       align-items: center;
       font-family: 'Press Start 2P', monospace;
     }
-    #planning-overlay.active { display: flex; }
 
     #planning-panel {
       background: #12122a;
@@ -42,8 +57,6 @@
       border-radius: 8px;
       padding: 24px;
       width: 740px;
-      max-height: 95vh;
-      position: relative;
     }
 
     #planning-title {
@@ -58,53 +71,6 @@
       font-size: 7px;
       text-align: center;
       margin-bottom: 20px;
-      line-height: 1.6;
-    }
-
-    #planning-columns {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 16px;
-    }
-
-    .col-title {
-      font-size: 8px;
-      text-align: center;
-      padding: 6px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-
-    #col-tasks .col-title  { color: #aaaaaa; background: #1a1a3e; border: 1px solid #333366; }
-    #col-plan  .col-title  { color: #aaaaaa; background: #1a2e1a; border: 1px solid #336633; }
-
-    #col-tasks, #col-plan { flex: 1; }
-
-    #col-plan .slot {
-      min-height: 54px;
-      border: 1px dashed #333355;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      background: #0d0d20;
-    }
-
-    .task-card {
-      min-height: 50px;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 8px;
-      color: #fff;
-      cursor: grab;
-      padding: 6px 10px;
-      border: 2px solid rgba(255,255,255,0.2);
     }
 
     #planning-check {
@@ -117,52 +83,39 @@
       font-size: 12px;
       cursor: pointer;
     }
-
-    /* QUEST PANEL */
-    #quest-panel {
-      background:#12122a;
-      border:2px solid #00d4ff;
-      border-radius:8px;
-      padding:28px;
-      width:680px;
-      max-height:90vh;
-      overflow-y:auto;
-      position:relative;
-    }
   </style>
 </head>
 
 <body>
 
-  <!-- QUEST overlay -->
+  <!-- QUEST -->
   <div id="quest-overlay">
     <div id="quest-panel">
-      <button id="quest-close" type="button"
-        style="position:absolute;top:12px;right:16px;background:none;border:none;color:#666;font-size:18px;cursor:pointer;font-family:inherit;">✕</button>
+      <button id="quest-close"
+        style="position:absolute;top:12px;right:16px;background:none;border:none;color:#666;font-size:18px;cursor:pointer;">
+        ✕
+      </button>
 
       <div id="quest-intro"></div>
       <div id="quest-choice" style="display:none;"></div>
-      <div id="quest-mg" style="display:none;"></div>
       <div id="mg-manual" style="display:none;"></div>
       <div id="mg-cicd" style="display:none;"></div>
       <div id="mg-delay" style="display:none;"></div>
     </div>
   </div>
 
-  <!-- planning overlay -->
+  <!-- PLANNING -->
   <div id="planning-overlay">
     <div id="planning-panel">
-      <button id="planning-close" type="button">✕</button>
+      <button id="planning-close">✕</button>
       <div id="planning-title">ПЛАНИРОВАНИЕ ДНЯ</div>
-      <div id="planning-subtitle">Расставь задачи в правильном порядке выполнения</div>
-      <button id="planning-check" type="button">ПРОВЕРИТЬ</button>
+      <div id="planning-subtitle">Расставь задачи в правильном порядке</div>
+      <button id="planning-check">ПРОВЕРИТЬ</button>
     </div>
   </div>
 
-  <script src="/src/quest-engine.js"></script>
-  <script src="/src/planning.js"></script>
-  <script src="/src/quest-laptop.js"></script>
-  <script src="/src/main.js"></script>
+  <!-- ✅ ВАЖНО: только main.js как module -->
+  <script type="module" src="/src/main.js"></script>
 
 </body>
 </html>
