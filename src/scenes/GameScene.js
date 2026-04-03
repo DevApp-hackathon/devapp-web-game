@@ -300,6 +300,51 @@ export default class GameScene extends Phaser.Scene {
           }, { once: true })
           window.addEventListener('quest-laptop-closed', () => { this.scene.resume('GameScene') }, { once: true })
         } else {
+          this.scene.pause()
+
+          const waitForQuest = () => {
+            if (!window.openQuest) {
+              console.warn('⏳ Ждём quest-engine...')
+              setTimeout(waitForQuest, 100)
+              return
+            }
+
+            const onDone = (e) => {
+              window.removeEventListener('quest-engine-done', onDone)
+
+              const quest = window.QUEST_DATA?.[e.detail.questId]
+              if (!quest) {
+                this.scene.resume('GameScene')
+                return
+              }
+
+              const choice = quest.choices[e.detail.choiceIndex]
+
+              this.gameState.progress = Math.max(0, Math.min(100, this.gameState.progress + choice.progressDelta))
+              this.gameState.anger = Math.max(0, Math.min(100, this.gameState.anger + choice.angerDelta))
+              this.gameState.stress = Math.max(0, Math.min(100, this.gameState.stress + choice.stressDelta))
+              this.gameState.step++
+
+              this.updateHUD()
+
+              this.scene.resume('GameScene')
+              this.scene.launch('FeedbackScene', { choice, gameState: this.gameState })
+              this.scene.pause()
+            }
+
+            const onClose = () => {
+              window.removeEventListener('quest-engine-closed', onClose)
+              this.scene.resume('GameScene')
+            }
+
+            window.addEventListener('quest-engine-done', onDone)
+            window.addEventListener('quest-engine-closed', onClose)
+
+            window.openQuest(obj.id)
+          }
+
+          waitForQuest()
+          /*
           if (!window.openQuest) return
 
           this.scene.pause()
@@ -336,6 +381,7 @@ export default class GameScene extends Phaser.Scene {
           window.addEventListener('quest-engine-closed', onClose)
 
           window.openQuest(obj.id)
+          */
         }
       }
     }
