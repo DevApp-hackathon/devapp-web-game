@@ -449,10 +449,12 @@ if (document.readyState === 'loading') {
 
 window.addEventListener('keydown', (e) => {
   if (e.key.toLowerCase() === 'e') {
-    if (typeof window.openLaptopQuest !== 'function') return
-
     const overlay = document.getElementById('quest-overlay')
-    if (overlay && overlay.style.display !== 'flex') {
+    if (!overlay) return
+
+    const isVisible = getComputedStyle(overlay).display === 'flex'
+
+    if (!isVisible && typeof window.openLaptopQuest === 'function') {
       window.openLaptopQuest()
     }
   }
