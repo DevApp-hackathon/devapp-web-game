@@ -370,8 +370,7 @@ export default class GameScene extends Phaser.Scene {
           }, { once: true })
           window.addEventListener('quest-laptop-closed', () => { this.scene.resume('GameScene') }, { once: true })
         } else {
-          if (!window.openQuest) return
-
+          if (window.openQuest) window.openQuest(obj.id)
           this.scene.pause()
           window.addEventListener('quest-engine-done', (e) => {
             const s = window._allScenarioData
@@ -384,32 +383,11 @@ export default class GameScene extends Phaser.Scene {
               this.gameState.completedQuests.add(e.detail.questId)
               this.updateHUD()
               this.scene.resume('GameScene')
-              return
-            }
-
-            const choice = quest.choices[e.detail.choiceIndex]
-
-            this.gameState.progress = Math.max(0, Math.min(100, this.gameState.progress + choice.progressDelta))
-            this.gameState.anger = Math.max(0, Math.min(100, this.gameState.anger + choice.angerDelta))
-            this.gameState.stress = Math.max(0, Math.min(100, this.gameState.stress + choice.stressDelta))
-            this.gameState.step++
-
-            this.updateHUD()
-
-            this.scene.resume('GameScene')
-            this.scene.launch('FeedbackScene', { choice, gameState: this.gameState })
-            this.scene.pause()
-          }
-
-          const onClose = () => {
-            window.removeEventListener('quest-engine-closed', onClose)
-            this.scene.resume('GameScene')
-          }
-
-          window.addEventListener('quest-engine-done', onDone)
-          window.addEventListener('quest-engine-closed', onClose)
-
-          window.openQuest(obj.id)
+              this.scene.launch('FeedbackScene', { choice, gameState: this.gameState })
+              this.scene.pause()
+            } else { this.scene.resume('GameScene') }
+          }, { once: true })
+          window.addEventListener('quest-engine-closed', () => { this.scene.resume('GameScene') }, { once: true })
         }
       }
     }
