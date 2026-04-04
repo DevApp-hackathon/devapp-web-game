@@ -79,7 +79,7 @@ class StartScene extends Phaser.Scene {
   }
 }
 
-// ---- Конфиг ----
+// ---- Конфиг   ----
 const config = {
   type: Phaser.AUTO,
   width: 1280,
