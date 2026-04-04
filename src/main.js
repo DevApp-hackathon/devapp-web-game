@@ -20,7 +20,6 @@ class StartScene extends Phaser.Scene {
 
   preload() {
     this.load.image('start-bg', 'assets/bg-start.png')
-    // this.load.image('start-bg', '/public/assets/bg-start.png')
   }
 
   create() {
