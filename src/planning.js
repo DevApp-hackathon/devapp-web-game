@@ -349,7 +349,7 @@ function initPlanning() {
 
   goBtn.addEventListener('click', () => {
     overlay.classList.remove('active')
-    window.dispatchEvent(new Event('planning-closed'))
+    window.dispatchEvent(new CustomEvent('planning-closed', { detail: { completed: true } }))
   })
 
   // Открытие извне (из Phaser)

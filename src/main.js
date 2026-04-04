@@ -19,40 +19,63 @@ class StartScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('start-bg', 'assets/bg-start.png')
-    // this.load.image('start-bg', '/public/assets/bg-start.png')
+    this.load.image('start-bg', '/src/assets/Late-night laptop session with snacks.png')
   }
 
   create() {
-    // Фон — растягиваем на весь канвас 1280x720
+    // Фон
     const bg = this.add.image(640, 360, 'start-bg')
     bg.setScale(Math.max(1280 / bg.width, 720 / bg.height))
 
-    // Заголовок
-    this.add.text(330, 130, 'DevOps Startup', {
-      fontSize: '28px',
-      color: '#1a1a1a',
-      fontFamily: '"Press Start 2P"'
-    }).setOrigin(0.5)
+    // Тёмный оверлей слева для читаемости текста
+    const grad = this.add.graphics()
+    grad.fillStyle(0x0d0d1a, 0.75)
+    grad.fillRect(0, 0, 520, 720)
+
+    // Заголовок — крупный, с жирным контуром как на картинке
+    this.add.text(60, 100, 'DevOps\nStartup', {
+      fontSize: '64px',
+      color: '#f0e6c8',
+      fontFamily: '"Press Start 2P"',
+      stroke: '#000000',
+      strokeThickness: 8,
+      lineSpacing: 12
+    }).setOrigin(0, 0)
 
     // Подзаголовок
-    this.add.text(330, 178, 'Build · Test · Deploy', {
-      fontSize: '11px',
-      color: '#444444',
-      fontFamily: '"Press Start 2P"'
-    }).setOrigin(0.5)
+    this.add.text(64, 295, 'Build · Test · Deploy', {
+      fontSize: '13px',
+      color: '#aaaacc',
+      fontFamily: '"Press Start 2P"',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0, 0)
 
-    // Кнопка Start
-    const btnBg = this.add.rectangle(330, 275, 235, 54, 0x1a1a1a).setInteractive({ useHandCursor: true })
-    const btnText = this.add.text(330, 275, 'Start', {
-      fontSize: '20px',
-      color: '#ffffff',
-      fontFamily: '"Press Start 2P"'
-    }).setOrigin(0.5)
+    // Кнопка — скруглённая, как в референсе
+    const makeBtn = (y, label, color, hoverColor, action) => {
+      const g = this.add.graphics()
+      const btnX = 60, btnW = 360, btnH = 54
 
-    btnBg.on('pointerover', () => { btnBg.setFillStyle(0x333333); btnText.setColor('#00d4ff') })
-    btnBg.on('pointerout', () => { btnBg.setFillStyle(0x1a1a1a); btnText.setColor('#ffffff') })
-    btnBg.on('pointerdown', () => this.scene.start('IntroScene'))
+      const drawBtn = (fill) => {
+        g.clear()
+        g.fillStyle(fill, 1)
+        g.fillRoundedRect(btnX, y - btnH / 2, btnW, btnH, 10)
+        g.lineStyle(2, 0x555577, 1)
+        g.strokeRoundedRect(btnX, y - btnH / 2, btnW, btnH, 10)
+      }
+      drawBtn(color)
+
+      const zone = this.add.zone(btnX + btnW / 2, y, btnW, btnH).setInteractive({ useHandCursor: true })
+      const txt = this.add.text(btnX + 22, y, label, {
+        fontSize: '14px', color: '#ffffff', fontFamily: '"Press Start 2P"'
+      }).setOrigin(0, 0.5)
+
+      zone.on('pointerover', () => { drawBtn(hoverColor); txt.setColor('#00d4ff') })
+      zone.on('pointerout',  () => { drawBtn(color);      txt.setColor('#ffffff') })
+      zone.on('pointerdown', action)
+    }
+
+    makeBtn(390, 'НОВАЯ ИГРА', 0x2a2a4a, 0x3a3a6a, () => this.scene.start('IntroScene'))
   }
 }
 

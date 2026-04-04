@@ -6,46 +6,57 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.spritesheet('player', 'assets/player.png', { frameWidth: 64, frameHeight: 64 })
-    this.load.image('spr-desk', 'assets/Desk-2.png')
-    this.load.image('spr-server', 'assets/server-rack.png')
-    this.load.image('spr-board', 'assets/Board.png')
-    this.load.image('spr-monitor', 'assets/Wall-Graph.png')
-    this.load.image('spr-bookshelf', 'assets/Tall-Bookshelf.png')
-    this.load.image('spr-coffee', 'assets/Coffee-Machine.png')
-    this.load.image('spr-plant', 'assets/Big-Plant.png')
-    this.load.image('spr-sofa', 'assets/Big-Sofa.png')
-    this.load.image('spr-vending', 'assets/Vending-Machine.png')
-    this.load.image('spr-printer', 'assets/Printer.png')
-    this.load.image('spr-pingpong', 'assets/pingpong-paddle.png')
+    this.load.spritesheet('player', '/src/assets/character-spritesheet-2.png', { frameWidth: 64, frameHeight: 64 })
+    this.load.image('spr-desk',       '/src/assets/Pixel art desk and GitHub logo.png')
+    this.load.image('spr-server',     '/src/assets/server-rack.png')
+    this.load.image('spr-board',      '/src/assets/Pixelated bulletin board with sticky notes.png')
+    this.load.image('spr-monitor',    '/src/assets/Retro pixel data monitoring panel.png')
+    this.load.image('spr-bookshelf',  '/src/assets/Pixel art desk and GitHub logo.png')
+    this.load.image('spr-coffee',     '/src/assets/Pixel art coffee corner setup.png')
+    this.load.image('spr-plant',      '/src/assets/Pixel art potted houseplant in terracotta.png')
+    this.load.image('spr-sofa',       '/src/assets/Retro pixel art red-orange sofa.png')
+    this.load.image('spr-vending',    '/src/assets/Vending-Machine.png')
+    this.load.image('spr-printer',    '/src/assets/Printer.png')
+    this.load.image('spr-pingpong',   '/src/assets/Pixel art ping pong table setup.png')
+    this.load.image('spr-exit',       '/src/assets/Wooden door with golden knob.png')
+    this.load.image('spr-whiteboard', '/src/assets/Pixel art whiteboard with markers and eraser.png')
+    this.load.image('spr-phone',      '/src/assets/Retro pixel art landline telephone.png')
   }
 
   create() {
-    this.gameState = { progress: 0, anger: 0, stress: 0, step: 0 }
+    this.gameState = { progress: 0, anger: 0, stress: 0, step: 0, completedQuests: new Set(), usedFun: new Set() }
+    // Квесты которые нужно пройти до финального деплоя (id: 0–5)
+    this.requiredQuestIds = [0, 1, 2, 3, 4, 5]
 
     this.drawOfficeBackground()
 
     // Объекты офиса: { x, y, w, h, label, type, id/effect, sprite, scale }
     this.objects = [
-      // ── На стене между окнами (x ≠ 220, 640, 1060) ──────────
-      { x: 430, y: 155, w: 64, h: 64, label: 'Whiteboard', type: 'trigger', id: 2, sprite: 'spr-board', scale: 4 },
-      { x: 850, y: 155, w: 64, h: 64, label: 'Доска задач', type: 'board', id: 2, sprite: 'spr-board', scale: 4 },
+      // ── Задняя стена: планирование (между окнами 220, 640, 1060) ──
+      { x: 430,  y: 155, w: 64, h: 64,  label: 'Whiteboard',      type: 'trigger', id: 2, sprite: 'spr-whiteboard', scale: 0.18, labelOffsetY: 30 },
+      { x: 850,  y: 155, w: 64, h: 64,  label: 'Доска задач',     type: 'board',   id: 2, sprite: 'spr-board',      scale: 0.15 },
 
-      // ── У задней стены (на полу) ─────────────────────────────
-      { x: 160, y: 340, w: 96, h: 96, label: 'Ноутбук', type: 'trigger', id: 0, sprite: 'spr-desk', scale: 3 },
-      { x: 550, y: 330, w: 96, h: 96, label: 'Git репо', type: 'trigger', id: 5, sprite: 'spr-bookshelf', scale: 3 },
-      { x: 1120, y: 330, w: 96, h: 96, label: 'Сервер', type: 'trigger', id: 1, sprite: 'spr-server', scale: 0.22 },
+      // ── Dev-зона (лево): разработка ─────────────────────────────
+      { x: 120,  y: 275, w: 96, h: 30,  label: 'Git репо',        type: 'trigger', id: 5, sprite: 'spr-bookshelf',  scale: 0.15, cropHalf: 'right', labelOffsetX: 65 },
+      { x: 420,  y: 325, w: 96, h: 96,  label: 'Ноутбук',         type: 'trigger', id: 0, sprite: 'spr-desk',       scale: 0.15, cropHalf: 'left', labelOffsetX: -30 },
 
-      // ── Середина офиса ───────────────────────────────────────
-      { x: 120, y: 440, w: 64, h: 64, label: 'Кофе ☕', type: 'fun', effect: () => this.applyFun(-15, 'Выпил кофе. -15 стресс!'), sprite: 'spr-coffee', scale: 4 },
-      { x: 400, y: 430, w: 64, h: 64, label: 'Мониторинг', type: 'trigger', id: 3, sprite: 'spr-monitor', scale: 4 },
-      { x: 730, y: 440, w: 96, h: 96, label: 'Диван 💤', type: 'fun', effect: () => this.applyFun(-20, 'Отдохнул. -20 стресс!'), sprite: 'spr-sofa', scale: 3 },
-      { x: 1000, y: 430, w: 96, h: 96, label: 'Телефон', type: 'trigger', id: 4, sprite: 'spr-vending', scale: 3 },
-      { x: 1220, y: 420, w: 55, h: 55, label: 'Выход', type: 'trigger', id: 6, sprite: null, scale: 1 },
+      // ── Ops-зона (право): инфраструктура ────────────────────────
+      { x: 790,  y: 315, w: 64, h: 64,  label: 'Мониторинг',      type: 'trigger', id: 3, sprite: 'spr-monitor',    scale: 0.15 },
+      { x: 1080, y: 310, w: 96, h: 96,  label: 'Сервер',          type: 'trigger', id: 1, sprite: 'spr-server',     scale: 0.22 },
 
-      // ── Ближний план ─────────────────────────────────────────
-      { x: 270, y: 570, w: 96, h: 96, label: 'Цветок 🌿', type: 'fun', effect: () => this.applyFun(-10, 'Полил цветок. -10 стресс!'), sprite: 'spr-plant', scale: 3 },
-      { x: 640, y: 560, w: 80, h: 80, label: 'Пинг-понг 🏓', type: 'fun', effect: () => this.applyFun(-25, 'Сыграл в пинг-понг. -25 стресс!'), sprite: 'spr-pingpong', scale: 0.07 },
+      // ── Зона отдыха (левый угол) ─────────────────────────────────
+      { x: 120,  y: 450, w: 64, h: 64,  label: 'Кофе ☕',        type: 'fun', effect: () => this.applyFun(-15, 'Выпил кофе. -15 стресс!'),       sprite: 'spr-coffee', scale: 0.15 },
+      { x: 330,  y: 460, w: 96, h: 96,  label: 'Диван 💤',       type: 'fun', effect: () => this.applyFun(-20, 'Отдохнул. -20 стресс!'),          sprite: 'spr-sofa',   scale: 0.15 },
+
+      // ── Коммуникации (центр-право) ───────────────────────────────
+      { x: 860,  y: 450, w: 64, h: 64,  label: 'Телефон',         type: 'trigger', id: 4, sprite: 'spr-phone',      scale: 0.10 },
+
+      // ── Деплой в прод (крайний правый — финал пути) ─────────────
+      { x: 1190, y: 430, w: 55, h: 55,  label: 'Деплой в прод!',  type: 'trigger', id: 6, sprite: 'spr-exit',       scale: 0.15, labelOffsetY: 30 },
+
+      // ── Передний план ────────────────────────────────────────────
+      { x: 180,  y: 565, w: 96, h: 96,  label: 'Цветок 🌿',      type: 'fun', effect: () => this.applyFun(-10, 'Полил цветок. -10 стресс!'),     sprite: 'spr-plant',  scale: 0.15 },
+      { x: 640,  y: 555, w: 80, h: 80,  label: 'Пинг-понг 🏓',   type: 'fun', effect: () => this.applyFun(-25, 'Сыграл в пинг-понг. -25 стресс!'), sprite: 'spr-pingpong', scale: 0.12 },
     ]
 
     // Рисуем объекты спрайтами (или прямоугольником для выхода)
@@ -54,13 +65,21 @@ export default class GameScene extends Phaser.Scene {
       let visual
       if (obj.sprite) {
         visual = this.add.image(obj.x, obj.y, obj.sprite).setScale(obj.scale)
+        if (obj.cropHalf) {
+          const src = this.textures.get(obj.sprite).getSourceImage()
+          const hw = src.width / 2
+          if (obj.cropHalf === 'left')  visual.setCrop(0,  0, hw, src.height)
+          if (obj.cropHalf === 'right') visual.setCrop(hw, 0, hw, src.height)
+        }
       } else {
         visual = this.add.rectangle(obj.x, obj.y, obj.w, obj.h, 0x888888)
       }
-      const text = this.add.text(obj.x, obj.y + obj.h / 2 + 8, obj.label, {
+      const text = this.add.text(obj.x + (obj.labelOffsetX || 0), obj.y + obj.h / 2 + 8 + (obj.labelOffsetY || 0), obj.label, {
         fontSize: '8px',
         color: '#ffffff',
-        fontFamily: '"Press Start 2P"'
+        fontFamily: '"Press Start 2P"',
+        backgroundColor: '#00000099',
+        padding: { x: 5, y: 3 }
       }).setOrigin(0.5, 0)
       this.objectSprites.push({ rect: visual, text, data: obj })
     })
@@ -78,17 +97,24 @@ export default class GameScene extends Phaser.Scene {
       this.tweens.add({ targets: this.planningHint, y: boardSprite.data.y - 70, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
     }
 
-    window.addEventListener('planning-closed', () => {
-      this.planningDone = true
-      if (this.planningHint) this.planningHint.setVisible(false)
-      if (boardSprite) {
-        this.tweens.killTweensOf(boardSprite.rect)
-        boardSprite.rect.setAlpha(1)
+    window.addEventListener('planning-closed', (e) => {
+      if (e.detail?.completed) {
+        this.planningDone = true
+        if (this.planningHint) this.planningHint.setVisible(false)
+        if (boardSprite) {
+          this.tweens.killTweensOf(boardSprite.rect)
+          boardSprite.rect.setAlpha(1)
+        }
       }
     }, { once: false })
 
     // Персонаж
-    this.player = this.physics.add.sprite(640, 360, 'player')
+    // Ограничиваем физический мир только зоной пола (не стены)
+    // Пол начинается с y=247, физическое тело игрока 64px (до масштабирования)
+    // Слева/справа: стены шириной ~24px; снизу — до HUD (y≈684)
+    this.physics.world.setBounds(32, 150, 1280 - 64, 684 - 150 + 64)
+
+    this.player = this.physics.add.sprite(640, 380, 'player')
     this.player.setScale(2)
     this.player.setCollideWorldBounds(true)
     this.player.setDepth(10)
@@ -160,22 +186,22 @@ export default class GameScene extends Phaser.Scene {
       })
 
     // Плинтус (стена → пол)
-    this.add.rectangle(W / 2, 238, W, 18, 0x7a5c3e)
-    this.add.rectangle(W / 2, 230, W, 4, 0x9a7c5e)
+    this.add.rectangle(W/2, 238, W, 18, 0x707070)
+    this.add.rectangle(W/2, 230, W,  4, 0x909090)
 
     // Боковые стены
     this.add.rectangle(12, 360, 24, H, 0xddd5c4)
     this.add.rectangle(W - 12, 360, 24, H, 0xddd5c4)
     // Плинтусы боковых стен
-    this.add.rectangle(12, 238, 24, 18, 0x7a5c3e)
-    this.add.rectangle(W - 12, 238, 24, 18, 0x7a5c3e)
+    this.add.rectangle(12, 238, 24, 18, 0x707070)
+    this.add.rectangle(W - 12, 238, 24, 18, 0x707070)
 
     // ── Пол (дощатый паркет) ─────────────────────────────────
     const floorY = 247
     const plankH = 32
-    const lightPlank = 0xc8945a
-    const darkPlank = 0xb88248
-    const lineColor = 0x9a6838
+    const lightPlank = 0xc8c8c8
+    const darkPlank  = 0xb0b0b0
+    const lineColor  = 0x909090
 
     for (let y = floorY; y < 682; y += plankH) {
       const even = Math.floor((y - floorY) / plankH) % 2 === 0
@@ -199,23 +225,25 @@ export default class GameScene extends Phaser.Scene {
 
   createHUD() {
     const hudY = 695
-    // Прогресс
-    this.add.text(30, hudY, 'Прогресс:', { fontSize: '8px', color: '#aaffaa', fontFamily: '"Press Start 2P"' })
-    this.progressBg = this.add.rectangle(200, hudY + 5, 160, 12, 0x333333).setOrigin(0, 0.5)
-    this.progressBar = this.add.rectangle(200, hudY + 5, 0, 12, 0x00ff88).setOrigin(0, 0.5)
-    this.progressLabel = this.add.text(368, hudY, '0%', { fontSize: '8px', color: '#00ff88', fontFamily: '"Press Start 2P"' })
+    const barW = 160
 
-    // Инвесторы
-    this.add.text(460, hudY, 'Инвесторы:', { fontSize: '8px', color: '#ffaaaa', fontFamily: '"Press Start 2P"' })
-    this.angerBg = this.add.rectangle(640, hudY + 5, 160, 12, 0x333333).setOrigin(0, 0.5)
-    this.angerBar = this.add.rectangle(640, hudY + 5, 0, 12, 0xff4444).setOrigin(0, 0.5)
-    this.angerLabel = this.add.text(808, hudY, '0%', { fontSize: '8px', color: '#ff4444', fontFamily: '"Press Start 2P"' })
+    // Прогресс — зелёный
+    this.add.text(32,  hudY, 'Прогресс:', { fontSize: '8px', color: '#00ff88', fontFamily: '"Press Start 2P"' })
+    this.progressBg    = this.add.rectangle(130, hudY + 5, barW, 12, 0x333333).setOrigin(0, 0.5)
+    this.progressBar   = this.add.rectangle(130, hudY + 5, 0,   12, 0x00ff88).setOrigin(0, 0.5)
+    this.progressLabel = this.add.text(296, hudY, '0%', { fontSize: '8px', color: '#00ff88', fontFamily: '"Press Start 2P"' })
 
-    // Стресс
-    this.add.text(880, hudY, 'Стресс:', { fontSize: '8px', color: '#ffddaa', fontFamily: '"Press Start 2P"' })
-    this.stressBg = this.add.rectangle(1010, hudY + 5, 160, 12, 0x333333).setOrigin(0, 0.5)
-    this.stressBar = this.add.rectangle(1010, hudY + 5, 0, 12, 0xffaa00).setOrigin(0, 0.5)
-    this.stressLabel = this.add.text(1178, hudY, '0%', { fontSize: '8px', color: '#ffaa00', fontFamily: '"Press Start 2P"' })
+    // Инвесторы — красный
+    this.add.text(380, hudY, 'Инвесторы:', { fontSize: '8px', color: '#ff4444', fontFamily: '"Press Start 2P"' })
+    this.angerBg    = this.add.rectangle(490, hudY + 5, barW, 12, 0x333333).setOrigin(0, 0.5)
+    this.angerBar   = this.add.rectangle(490, hudY + 5, 0,   12, 0xff4444).setOrigin(0, 0.5)
+    this.angerLabel = this.add.text(656, hudY, '0%', { fontSize: '8px', color: '#ff4444', fontFamily: '"Press Start 2P"' })
+
+    // Стресс — оранжевый
+    this.add.text(730, hudY, 'Стресс:', { fontSize: '8px', color: '#ffaa00', fontFamily: '"Press Start 2P"' })
+    this.stressBg    = this.add.rectangle(810, hudY + 5, barW, 12, 0x333333).setOrigin(0, 0.5)
+    this.stressBar   = this.add.rectangle(810, hudY + 5, 0,   12, 0xffaa00).setOrigin(0, 0.5)
+    this.stressLabel = this.add.text(976, hudY, '0%', { fontSize: '8px', color: '#ffaa00', fontFamily: '"Press Start 2P"' })
   }
 
   updateHUD() {
@@ -246,7 +274,10 @@ export default class GameScene extends Phaser.Scene {
     for (const obj of this.objects) {
       const dx = Math.abs(px - obj.x)
       const dy = Math.abs(py - obj.y)
-      if (dx < obj.w / 2 + 40 && dy < obj.h / 2 + 40) return obj
+      // Для объектов на стене (y < 250) увеличиваем зону по Y,
+      // чтобы игрок мог взаимодействовать стоя у стены
+      const dyRange = obj.y < 250 ? 220 : obj.h / 2 + 40
+      if (dx < obj.w / 2 + 60 && dy < dyRange) return obj
     }
     return null
   }
@@ -269,6 +300,13 @@ export default class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(wasd.interact) && this.nearObject && !this.interactCooldown) {
       const obj = this.nearObject
       if (obj.type === 'fun') {
+        if (this.gameState.usedFun.has(obj.label)) {
+          this.popupText.setText('Уже использовано!').setVisible(true)
+          this.interactCooldown = true
+          this.time.delayedCall(1500, () => { this.popupText.setVisible(false); this.interactCooldown = false })
+          return
+        }
+        this.gameState.usedFun.add(obj.label)
         obj.effect()
       } else if (obj.type === 'board') {
         if (!this.planningDone) {
@@ -281,7 +319,38 @@ export default class GameScene extends Phaser.Scene {
           window.addEventListener('cheatsheet-closed', () => { this.scene.resume('GameScene') }, { once: true })
         }
       } else if (obj.type === 'trigger') {
-        if (obj.id === 0) {
+        if (obj.id === 6) {
+          const missing = this.requiredQuestIds.filter(id => !this.gameState.completedQuests.has(id))
+          const needsBoard = !this.planningDone
+          if (missing.length > 0 || needsBoard) {
+            const total = missing.length + (needsBoard ? 1 : 0)
+            this.popupText.setText('Сначала пройди все квесты!\nОсталось: ' + total).setVisible(true)
+            this.interactCooldown = true
+            this.time.delayedCall(2500, () => {
+              this.popupText.setVisible(false)
+              this.interactCooldown = false
+            })
+            return
+          }
+          if (window.openQuest) window.openQuest(6)
+          this.scene.pause()
+          window.addEventListener('quest-engine-done', (e) => {
+            const s = window._allScenarioData
+            if (s && s[e.detail.questId]) {
+              const choice = s[e.detail.questId][e.detail.choiceIndex]
+              this.gameState.progress = Math.max(0, Math.min(100, this.gameState.progress + choice.progressDelta))
+              this.gameState.anger    = Math.max(0, Math.min(100, this.gameState.anger    + choice.angerDelta))
+              this.gameState.stress   = Math.max(0, Math.min(100, this.gameState.stress   + choice.stressDelta))
+              this.gameState.step++
+              this.gameState.completedQuests.add(6)
+              this.updateHUD()
+              this.scene.resume('GameScene')
+              this.scene.launch('FeedbackScene', { choice, gameState: this.gameState })
+              this.scene.pause()
+            } else { this.scene.resume('GameScene') }
+          }, { once: true })
+          window.addEventListener('quest-engine-closed', () => { this.scene.resume('GameScene') }, { once: true })
+        } else if (obj.id === 0) {
           if (window.openLaptopQuest) window.openLaptopQuest()
           this.scene.pause()
           window.addEventListener('quest-laptop-done', (e) => {
@@ -292,6 +361,7 @@ export default class GameScene extends Phaser.Scene {
               this.gameState.anger = Math.max(0, Math.min(100, this.gameState.anger + choice.angerDelta))
               this.gameState.stress = Math.max(0, Math.min(100, this.gameState.stress + choice.stressDelta))
               this.gameState.step++
+              this.gameState.completedQuests.add(0)
               this.updateHUD()
               this.scene.resume('GameScene')
               this.scene.launch('FeedbackScene', { choice, gameState: this.gameState })
@@ -303,12 +373,16 @@ export default class GameScene extends Phaser.Scene {
           if (!window.openQuest) return
 
           this.scene.pause()
-
-          const onDone = (e) => {
-            window.removeEventListener('quest-engine-done', onDone)
-
-            const quest = window.QUEST_DATA?.[e.detail.questId]
-            if (!quest) {
+          window.addEventListener('quest-engine-done', (e) => {
+            const s = window._allScenarioData
+            if (s && s[e.detail.questId]) {
+              const choice = s[e.detail.questId][e.detail.choiceIndex]
+              this.gameState.progress = Math.max(0, Math.min(100, this.gameState.progress + choice.progressDelta))
+              this.gameState.anger    = Math.max(0, Math.min(100, this.gameState.anger    + choice.angerDelta))
+              this.gameState.stress   = Math.max(0, Math.min(100, this.gameState.stress   + choice.stressDelta))
+              this.gameState.step++
+              this.gameState.completedQuests.add(e.detail.questId)
+              this.updateHUD()
               this.scene.resume('GameScene')
               return
             }
