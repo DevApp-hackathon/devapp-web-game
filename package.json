@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && mkdir -p dist/src && cp -r src/assets dist/src/",
     "preview": "vite preview"
   },
   "dependencies": {
