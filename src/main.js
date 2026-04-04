@@ -19,7 +19,7 @@ class StartScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('start-bg', '/src/assets/Late-night laptop session with snacks.png')
+    this.load.image('start-bg', './src/assets/Late-night laptop session with snacks.png')
   }
 
   create() {

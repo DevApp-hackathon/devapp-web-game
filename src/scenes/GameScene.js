@@ -6,21 +6,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.spritesheet('player', '/src/assets/character-spritesheet-2.png', { frameWidth: 64, frameHeight: 64 })
-    this.load.image('spr-desk',       '/src/assets/Pixel art desk and GitHub logo.png')
-    this.load.image('spr-server',     '/src/assets/server-rack.png')
-    this.load.image('spr-board',      '/src/assets/Pixelated bulletin board with sticky notes.png')
-    this.load.image('spr-monitor',    '/src/assets/Retro pixel data monitoring panel.png')
-    this.load.image('spr-bookshelf',  '/src/assets/Pixel art desk and GitHub logo.png')
-    this.load.image('spr-coffee',     '/src/assets/Pixel art coffee corner setup.png')
-    this.load.image('spr-plant',      '/src/assets/Pixel art potted houseplant in terracotta.png')
-    this.load.image('spr-sofa',       '/src/assets/Retro pixel art red-orange sofa.png')
-    this.load.image('spr-vending',    '/src/assets/Vending-Machine.png')
-    this.load.image('spr-printer',    '/src/assets/Printer.png')
-    this.load.image('spr-pingpong',   '/src/assets/Pixel art ping pong table setup.png')
-    this.load.image('spr-exit',       '/src/assets/Wooden door with golden knob.png')
-    this.load.image('spr-whiteboard', '/src/assets/Pixel art whiteboard with markers and eraser.png')
-    this.load.image('spr-phone',      '/src/assets/Retro pixel art landline telephone.png')
+    this.load.spritesheet('player', './src/assets/character-spritesheet-2.png', { frameWidth: 64, frameHeight: 64 })
+    this.load.image('spr-desk',       './src/assets/Pixel art desk and GitHub logo.png')
+    this.load.image('spr-server',     './src/assets/server-rack.png')
+    this.load.image('spr-board',      './src/assets/Pixelated bulletin board with sticky notes.png')
+    this.load.image('spr-monitor',    './src/assets/Retro pixel data monitoring panel.png')
+    this.load.image('spr-bookshelf',  './src/assets/Pixel art desk and GitHub logo.png')
+    this.load.image('spr-coffee',     './src/assets/Pixel art coffee corner setup.png')
+    this.load.image('spr-plant',      './src/assets/Pixel art potted houseplant in terracotta.png')
+    this.load.image('spr-sofa',       './src/assets/Retro pixel art red-orange sofa.png')
+    this.load.image('spr-vending',    './src/assets/Vending-Machine.png')
+    this.load.image('spr-printer',    './src/assets/Printer.png')
+    this.load.image('spr-pingpong',   './src/assets/Pixel art ping pong table setup.png')
+    this.load.image('spr-exit',       './src/assets/Wooden door with golden knob.png')
+    this.load.image('spr-whiteboard', './src/assets/Pixel art whiteboard with markers and eraser.png')
+    this.load.image('spr-phone',      './src/assets/Retro pixel art landline telephone.png')
   }
 
   create() {
