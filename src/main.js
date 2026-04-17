@@ -8,9 +8,14 @@ scenarios.forEach(s => { window._allScenarioData[s.id] = s.choices })
 import GameScene from './scenes/GameScene.js'
 import SituationScene from './scenes/SituationScene.js'
 import FeedbackScene from './scenes/FeedbackScene.js'
-import IntroScene from './scenes/IntroScene.js'
+import ReferenceScene from './scenes/ReferenceScene.js'
+import TutorialScene from './scenes/TutorialScene.js'
 import TaskOrderScene from './scenes/TaskOrderScene.js'
 import FinalScene from './scenes/FinalScene.js'
+import SandboxScene from './scenes/SandboxScene.js'
+
+const GAME_WIDTH = 1280
+const GAME_HEIGHT = 720
 
 // ---- Стартовый экран ----
 class StartScene extends Phaser.Scene {
@@ -24,8 +29,8 @@ class StartScene extends Phaser.Scene {
 
   create() {
     // Фон
-    const bg = this.add.image(640, 360, 'start-bg')
-    bg.setScale(Math.max(1280 / bg.width, 720 / bg.height))
+    const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'start-bg')
+    bg.setScale(Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height))
 
     // Тёмный оверлей слева для читаемости текста
     const grad = this.add.graphics()
@@ -75,21 +80,48 @@ class StartScene extends Phaser.Scene {
       zone.on('pointerdown', action)
     }
 
-    makeBtn(390, 'НОВАЯ ИГРА', 0x2a2a4a, 0x3a3a6a, () => this.scene.start('IntroScene'))
+    makeBtn(390, 'ИГРАТЬ', 0x2a2a4a, 0x3a3a6a, () => this.scene.start('GameScene'))
+
+    this.add.text(64, 450, 'Ты — основатель стартапа.\nНаписал первую версию продукта.\nИнвесторы вложили деньги и ждут результата.\nУ тебя есть офис и 7 шагов до релиза.', {
+      fontSize: '13px',
+      color: '#888899',
+      fontFamily: '"Press Start 2P"',
+      lineSpacing: 10,
+      wordWrap: { width: 400 }
+    }).setOrigin(0, 0)
   }
 }
 
 // ---- Конфиг   ----
 const config = {
   type: Phaser.AUTO,
-  width: 1280,
-  height: 720,
+  parent: 'game-root',
+  width: GAME_WIDTH,
+  height: GAME_HEIGHT,
   pixelArt: true,
+  antialias: false,
+  roundPixels: true,
+  autoRound: true,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT
+  },
   physics: {
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }
   },
-  scene: [StartScene, IntroScene, TaskOrderScene, GameScene, SituationScene, FeedbackScene, FinalScene]
+  scene: [StartScene, TutorialScene, TaskOrderScene, GameScene, SituationScene, FeedbackScene, ReferenceScene, SandboxScene, FinalScene]
 }
 
 new Phaser.Game(config)
+
+// Закрытие квест-оверлея по Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return
+  const overlay = document.getElementById('quest-overlay')
+  if (overlay && overlay.style.display !== 'none') {
+    document.getElementById('quest-close').click()
+  }
+})

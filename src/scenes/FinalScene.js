@@ -15,13 +15,18 @@ export default class FinalScene extends Phaser.Scene {
 
     // Определяем результат
     let title, desc, color, botMsg
-    if (progress >= 70 && anger < 50) {
+    if (anger >= 100) {
+      title = 'ИНВЕСТОРЫ УШЛИ'
+      desc = 'Терпение инвесторов лопнуло.\nСлишком много хаоса, ручных деплоев\nи проигнорированных инцидентов.\nПроект закрыт.'
+      color = 0xff2222
+      botMsg = 'Инвесторы ценят\nпредсказуемость.\nDevOps — это про неё.'
+    } else if (progress >= 70 && anger < 50) {
       title = 'РЕЛИЗ УСПЕШЕН! 🚀'
       desc = 'Ты выстроил базовые DevOps-практики.\nПроект вышел стабильно, инвесторы\nвидят управляемый рост.'
       color = 0x00ff88
       botMsg = 'Так и работает DevOps!\nПроцессы — это основа\nуверенного роста.'
     } else if (anger >= 70) {
-      title = 'ИНВЕСТОРЫ ВЫШЛИ'
+      title = 'ИНВЕСТОРЫ НЕДОВОЛЬНЫ'
       desc = 'Слишком много ошибок в процессах.\nРучные деплои, отсутствие мониторинга\nи игнорирование проблем стоили доверия.'
       color = 0xff4444
       botMsg = 'Не расстраивайся.\nТеперь ты знаешь что\nнадо было делать.'
@@ -40,13 +45,8 @@ export default class FinalScene extends Phaser.Scene {
     // DevBot
     const botX = 140
     const botY = 140
-    this.add.rectangle(botX, botY, 72, 72, 0x1a1a3e).setStrokeStyle(2, color)
-    this.add.rectangle(botX - 14, botY - 10, 12, 10, color)
-    this.add.rectangle(botX + 14, botY - 10, 12, 10, color)
-    this.add.rectangle(botX, botY + 14, 30, 7, color)
-    this.add.rectangle(botX, botY - 48, 4, 16, 0x888888)
-    this.add.circle(botX, botY - 58, 6, color)
-    this.add.text(botX, botY + 46, 'DevBot', {
+    this.add.image(botX, botY, 'devbot').setDisplaySize(104, 104)
+    this.add.text(botX, botY + 64, 'DevBot', {
       fontSize: '8px', color: '#888', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 

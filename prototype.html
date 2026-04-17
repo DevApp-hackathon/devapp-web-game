@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>DevOps Startup — Прототип</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      width: 960px;
+      height: 600px;
+      position: relative;
+      border: 2px solid #333355;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .screen.active { display: flex; }
+
+    /* ─── ЭКРАН 1: СТАРТ ─── */
+    #screen-start {
+      background: #0d0d1a;
+      align-items: stretch;
+    }
+    .start-left {
+      width: 420px;
+      background: rgba(13,13,26,0.92);
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 28px;
+      z-index: 2;
+    }
+    .start-bg {
+      flex: 1;
+      background: linear-gradient(135deg, #1a1a3e 0%, #0d1a2e 40%, #1a2e1a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .start-bg::before {
+      content: '💻';
+      position: absolute;
+      font-size: 120px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      opacity: 0.3;
+      filter: grayscale(1);
+    }
+    .start-bg::after {
+      content: '☕  🍕  📦';
+      position: absolute;
+      font-size: 32px;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.25;
+      letter-spacing: 16px;
+    }
+    .start-title {
+      font-size: 42px;
+      color: #f0e6c8;
+      line-height: 1.3;
+      text-shadow: 3px 3px 0 #000;
+    }
+    .start-sub {
+      font-size: 9px;
+      color: #7777aa;
+      line-height: 2;
+    }
+    .btn-primary {
+      background: #2a2a4a;
+      border: 2px solid #444466;
+      border-radius: 8px;
+      padding: 16px 24px;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-primary:hover { background: #3a3a6a; color: #00d4ff; }
+
+    /* ─── ЭКРАН 2: ИГРА ─── */
+    #screen-game {
+      background: #111128;
+      flex-direction: column;
+    }
+
+    .hud {
+      height: 56px;
+      background: #0a0a1f;
+      border-bottom: 2px solid #222244;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 24px;
+      flex-shrink: 0;
+    }
+    .hud-label {
+      font-size: 7px;
+      color: #555577;
+    }
+    .hud-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .hud-bar {
+      width: 120px;
+      height: 8px;
+      background: #222244;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .hud-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s;
+    }
+    .bar-progress { background: #00d4ff; width: 35%; }
+    .bar-anger    { background: #ff4444; width: 20%; }
+    .bar-stress   { background: #ffaa00; width: 30%; }
+
+    .hud-quests {
+      margin-left: auto;
+      font-size: 7px;
+      color: #555577;
+      text-align: right;
+      line-height: 2;
+    }
+    .hud-quests span { color: #00ff88; }
+
+    .office {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Зоны */
+    .zone {
+      position: absolute;
+      border: 1px dashed rgba(255,255,255,0.06);
+      border-radius: 4px;
+    }
+    .zone-label {
+      position: absolute;
+      top: 6px; left: 10px;
+      font-size: 6px;
+      color: rgba(255,255,255,0.15);
+    }
+
+    /* Объект */
+    .obj {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .obj:hover { transform: scale(1.08); }
+    .obj:hover .obj-icon { border-color: #00d4ff; box-shadow: 0 0 12px rgba(0,212,255,0.4); }
+    .obj-icon {
+      width: 64px;
+      height: 64px;
+      background: #1a1a3e;
+      border: 2px solid #333355;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .obj-name {
+      font-size: 7px;
+      color: #8888aa;
+      text-align: center;
+      max-width: 80px;
+      line-height: 1.5;
+    }
+    .obj.done .obj-icon { border-color: #00aa44; background: #0a1a0a; }
+    .obj.done .obj-name { color: #00aa44; }
+
+    /* Персонаж */
+    .player {
+      position: absolute;
+      bottom: 60px;
+      left: 200px;
+      font-size: 28px;
+      transition: left 0.5s, bottom 0.5s;
+      z-index: 10;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
+    }
+
+    /* Квест-диалог */
+    #quest-dialog {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 50;
+      justify-content: center;
+      align-items: center;
+    }
+    #quest-dialog.active { display: flex; }
+    .quest-panel {
+      background: #12122a;
+      border: 2px solid #00d4ff;
+      border-radius: 8px;
+      padding: 28px;
+      width: 560px;
+      position: relative;
+    }
+    .quest-title {
+      font-size: 11px;
+      color: #00d4ff;
+      margin-bottom: 14px;
+    }
+    .quest-text {
+      font-size: 8px;
+      color: #aaaacc;
+      line-height: 2;
+      margin-bottom: 20px;
+    }
+    .quest-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .quest-opt {
+      background: #1a1a3e;
+      border: 1px solid #333366;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: #aaaacc;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.7;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .quest-opt:hover { background: #2a2a5a; border-color: #00d4ff; color: #fff; }
+    .quest-opt.correct { background: #0a1a0a; border-color: #00aa44; color: #00ff88; pointer-events: none; }
+    .quest-opt.wrong   { background: #1f0808; border-color: #ff4444; color: #ff6666; pointer-events: none; }
+    .quest-feedback {
+      display: none;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 8px;
+      line-height: 2;
+    }
+    .quest-feedback.ok    { background: #0a1a0a; border: 1px solid #00aa44; color: #88ff88; display: block; }
+    .quest-feedback.error { background: #1f0808; border: 1px solid #ff4444; color: #ff8888; display: block; }
+    .quest-close {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 20px;
+      background: #00d4ff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: #0d0d1f;
+      cursor: pointer;
+    }
+    .quest-close:hover { background: #0099bb; }
+    #quest-dialog-close {
+      position: absolute;
+      top: 12px; right: 16px;
+      background: none; border: none;
+      color: #555; font-size: 16px;
+      cursor: pointer; font-family: inherit;
+    }
+    #quest-dialog-close:hover { color: #ff4444; }
+
+    .hint {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 7px;
+      color: #333355;
+      white-space: nowrap;
+    }
+
+    /* ─── ЭКРАН 3: ФИНАЛ ─── */
+    #screen-final {
+      background: radial-gradient(ellipse at center, #0a1a1a 0%, #0d0d1a 70%);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .final-title {
+      font-size: 28px;
+      color: #00ff88;
+      text-shadow: 0 0 20px rgba(0,255,136,0.5);
+      text-align: center;
+    }
+    .final-sub {
+      font-size: 9px;
+      color: #555577;
+      text-align: center;
+      line-height: 2;
+    }
+    .final-stats {
+      display: flex;
+      gap: 24px;
+    }
+    .stat-card {
+      background: #12122a;
+      border: 1px solid #222244;
+      border-radius: 8px;
+      padding: 20px 24px;
+      text-align: center;
+      min-width: 140px;
+    }
+    .stat-val {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .stat-label {
+      font-size: 7px;
+      color: #555577;
+      line-height: 2;
+    }
+    .final-skills {
+      background: #0a0a1f;
+      border: 1px solid #222244;
+      border-radius: 8px;
+      padding: 16px 24px;
+      width: 560px;
+    }
+    .final-skills-title {
+      font-size: 8px;
+      color: #555577;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .skill-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .skill-name {
+      font-size: 7px;
+      color: #8888aa;
+      min-width: 160px;
+    }
+    .skill-bar {
+      flex: 1;
+      height: 8px;
+      background: #1a1a3e;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00d4ff, #00ff88);
+      border-radius: 4px;
+      animation: fillAnim 1.2s ease-out forwards;
+      width: 0;
+    }
+    @keyframes fillAnim { from { width: 0; } }
+    .final-btn {
+      padding: 14px 32px;
+      background: #00d4ff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: #0d0d1f;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .final-btn:hover { background: #0099bb; }
+
+    /* Тост */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #00aa44;
+      color: #fff;
+      font-size: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      transition: transform 0.3s;
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ЭКРАН 1: СТАРТ -->
+<div id="screen-start" class="screen active">
+  <div class="start-left">
+    <div class="start-title">DevOps<br>Startup</div>
+    <div class="start-sub">Build · Test · Deploy</div>
+    <button class="btn-primary" onclick="goTo('game')">▶ НОВАЯ ИГРА</button>
+  </div>
+  <div class="start-bg"></div>
+</div>
+
+<!-- ЭКРАН 2: ИГРА -->
+<div id="screen-game" class="screen">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-bar-wrap">
+      <div class="hud-label">ПРОГРЕСС</div>
+      <div class="hud-bar"><div class="hud-bar-fill bar-progress" id="bar-progress"></div></div>
+    </div>
+    <div class="hud-bar-wrap">
+      <div class="hud-label">СТРЕСС</div>
+      <div class="hud-bar"><div class="hud-bar-fill bar-stress" id="bar-stress"></div></div>
+    </div>
+    <div class="hud-bar-wrap">
+      <div class="hud-label">ЗЛОСТЬ</div>
+      <div class="hud-bar"><div class="hud-bar-fill bar-anger" id="bar-anger"></div></div>
+    </div>
+    <div class="hud-quests" id="hud-quests">
+      КВЕСТЫ: <span id="quest-count">0</span> / 3
+    </div>
+  </div>
+
+  <!-- Офис -->
+  <div class="office" id="office">
+    <!-- Зоны -->
+    <div class="zone" style="left:20px;top:20px;width:280px;height:300px;">
+      <div class="zone-label">DEV ZONE</div>
+    </div>
+    <div class="zone" style="left:340px;top:20px;width:280px;height:300px;">
+      <div class="zone-label">OPS ZONE</div>
+    </div>
+    <div class="zone" style="left:660px;top:20px;width:260px;height:300px;">
+      <div class="zone-label">BREAK ZONE</div>
+    </div>
+
+    <!-- Объекты -->
+    <div class="obj" id="obj-laptop" style="left:60px;top:60px;" onclick="openQuest('laptop')">
+      <div class="obj-icon">💻</div>
+      <div class="obj-name">НОУТБУК</div>
+    </div>
+
+    <div class="obj" id="obj-board" style="left:200px;top:60px;" onclick="openQuest('board')">
+      <div class="obj-icon">📋</div>
+      <div class="obj-name">ДОСКА ЗАДАЧ</div>
+    </div>
+
+    <div class="obj" id="obj-server" style="left:380px;top:60px;" onclick="openQuest('server')">
+      <div class="obj-icon">🖥️</div>
+      <div class="obj-name">СЕРВЕР</div>
+    </div>
+
+    <div class="obj" id="obj-monitor" style="left:520px;top:60px;" onclick="openQuest('monitor')">
+      <div class="obj-icon">📊</div>
+      <div class="obj-name">МОНИТОРИНГ</div>
+    </div>
+
+    <div class="obj" id="obj-coffee" style="left:700px;top:70px;" onclick="takeCoffee()">
+      <div class="obj-icon">☕</div>
+      <div class="obj-name">КОФЕ</div>
+    </div>
+
+    <div class="obj" id="obj-deploy" style="left:820px;top:60px;" onclick="openDeploy()">
+      <div class="obj-icon" id="deploy-icon" style="border-color:#555;opacity:0.4;">🚀</div>
+      <div class="obj-name" style="color:#555;">ДЕПЛОЙ В ПРОД</div>
+    </div>
+
+    <!-- Персонаж -->
+    <div class="player" id="player">🧑‍💻</div>
+
+    <!-- Подсказка -->
+    <div class="hint">Нажми на объект чтобы взаимодействовать</div>
+
+    <!-- Квест-диалог -->
+    <div id="quest-dialog">
+      <div class="quest-panel">
+        <button id="quest-dialog-close" onclick="closeQuest()">✕</button>
+        <div class="quest-title" id="q-title"></div>
+        <div class="quest-text" id="q-text"></div>
+        <div class="quest-options" id="q-options"></div>
+        <div class="quest-feedback" id="q-feedback"></div>
+        <button class="quest-close" id="q-close" onclick="closeQuest()">ЗАКРЫТЬ →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ЭКРАН 3: ФИНАЛ -->
+<div id="screen-final" class="screen">
+  <div class="final-title">🎉 ДЕПЛОЙ ВЫПОЛНЕН!</div>
+  <div class="final-sub">Стартап запущен в продакшен.<br>Ты прошёл путь DevOps-инженера.</div>
+  <div class="final-stats">
+    <div class="stat-card">
+      <div class="stat-val" style="color:#00d4ff;">3/3</div>
+      <div class="stat-label">КВЕСТЫ<br>ЗАВЕРШЕНЫ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#00ff88;">+85%</div>
+      <div class="stat-label">ПРОГРЕСС<br>КОМАНДЫ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#ffaa00;">LOW</div>
+      <div class="stat-label">УРОВЕНЬ<br>СТРЕССА</div>
+    </div>
+  </div>
+  <div class="final-skills">
+    <div class="final-skills-title">ОСВОЕННЫЕ НАВЫКИ</div>
+    <div class="skill-row">
+      <div class="skill-name">CI/CD пайплайны</div>
+      <div class="skill-bar"><div class="skill-fill" style="animation-delay:0.1s;--w:90%" onanimationstart="this.style.width=getComputedStyle(this).getPropertyValue('--w')" ></div></div>
+    </div>
+    <div class="skill-row">
+      <div class="skill-name">Мониторинг</div>
+      <div class="skill-bar"><div class="skill-fill" style="animation-delay:0.3s;"></div></div>
+    </div>
+    <div class="skill-row">
+      <div class="skill-name">Управление задачами</div>
+      <div class="skill-bar"><div class="skill-fill" style="animation-delay:0.5s;"></div></div>
+    </div>
+  </div>
+  <button class="final-btn" onclick="goTo('start')">↺ ИГРАТЬ СНОВА</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const quests = {
+    laptop: {
+      title: 'НАСТРОЙКА CI/CD',
+      text: 'Команда хочет автоматизировать деплой.\nКакой подход выбрать?',
+      options: [
+        { text: 'Настроить GitHub Actions — запускать тесты и деплой при каждом пуше', correct: true,
+          fb: '✅ Верно! Автоматизация через GitHub Actions — стандарт DevOps практик.' },
+        { text: 'Деплоить вручную по пятницам после ревью', correct: false,
+          fb: '❌ Ручной деплой создаёт риски и замедляет цикл разработки.' },
+        { text: 'Попросить джуна разбираться каждый раз', correct: false,
+          fb: '❌ Это снижает предсказуемость и повышает стресс в команде.' },
+      ]
+    },
+    board: {
+      title: 'ПЛАНИРОВАНИЕ СПРИНТА',
+      text: 'Бэклог переполнен задачами.\nКак правильно приоритизировать?',
+      options: [
+        { text: 'Брать задачи с наибольшим бизнес-значением и наименьшими рисками', correct: true,
+          fb: '✅ Верно! Value vs Risk — ключевой принцип приоритизации в DevOps.' },
+        { text: 'Делать всё подряд по порядку добавления', correct: false,
+          fb: '❌ Без приоритизации можно потратить время на неважные задачи.' },
+        { text: 'Взять только то, что интересно команде', correct: false,
+          fb: '❌ Субъективный выбор не всегда совпадает с нуждами продукта.' },
+      ]
+    },
+    server: {
+      title: 'ИНЦИДЕНТ НА СЕРВЕРЕ',
+      text: 'Прод упал! Ошибка 500 у 30% пользователей.\nПервый шаг?',
+      options: [
+        { text: 'Проверить логи, найти причину, откатить последний деплой если нужно', correct: true,
+          fb: '✅ Верно! Диагностика → откат → хотфикс — классический incident response.' },
+        { text: 'Написать всем в Slack что "всё нормально, скоро починим"', correct: false,
+          fb: '❌ Коммуникация важна, но сначала нужно найти причину.' },
+        { text: 'Перезагрузить сервер и надеяться на лучшее', correct: false,
+          fb: '❌ Без диагностики проблема может повториться.' },
+      ]
+    },
+    monitor: {
+      title: 'МОНИТОРИНГ И АЛЕРТЫ',
+      text: 'Как понять что система работает\nнормально без постоянного ручного контроля?',
+      options: [
+        { text: 'Настроить метрики (CPU, память, latency) и алерты при аномалиях', correct: true,
+          fb: '✅ Верно! Observability — один из столпов DevOps культуры.' },
+        { text: 'Заходить на сервер каждое утро и смотреть логи', correct: false,
+          fb: '❌ Это не масштабируется и не даёт реакции в реальном времени.' },
+        { text: 'Ждать жалоб от пользователей', correct: false,
+          fb: '❌ К тому времени бизнес уже теряет деньги и репутацию.' },
+      ]
+    }
+  };
+
+  let completedQuests = new Set();
+  let currentQuest = null;
+  let questAnswered = false;
+
+  function goTo(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    if (screen === 'game') resetGame();
+  }
+
+  function resetGame() {
+    completedQuests = new Set();
+    questAnswered = false;
+    updateHUD();
+    document.querySelectorAll('.obj').forEach(o => o.classList.remove('done'));
+    document.getElementById('deploy-icon').style.borderColor = '#555';
+    document.getElementById('deploy-icon').style.opacity = '0.4';
+    document.getElementById('deploy-icon').parentElement.querySelector('.obj-name').style.color = '#555';
+  }
+
+  function updateHUD() {
+    const n = completedQuests.size;
+    document.getElementById('quest-count').textContent = n;
+    document.getElementById('bar-progress').style.width = (n * 28 + 7) + '%';
+    document.getElementById('bar-stress').style.width = Math.max(5, 30 - n * 8) + '%';
+    document.getElementById('bar-anger').style.width = Math.max(5, 20 - n * 5) + '%';
+
+    if (n >= 3) {
+      document.getElementById('deploy-icon').style.borderColor = '#00ff88';
+      document.getElementById('deploy-icon').style.opacity = '1';
+      document.getElementById('deploy-icon').parentElement.querySelector('.obj-name').style.color = '#00ff88';
+    }
+  }
+
+  function movePlayer(x, y) {
+    const p = document.getElementById('player');
+    p.style.left = x + 'px';
+    p.style.bottom = y + 'px';
+  }
+
+  function openQuest(id) {
+    if (completedQuests.has(id)) {
+      showToast('Квест уже выполнен!');
+      return;
+    }
+    const q = quests[id];
+    if (!q) return;
+    currentQuest = id;
+    questAnswered = false;
+
+    document.getElementById('q-title').textContent = q.title;
+    document.getElementById('q-text').textContent = q.text;
+    document.getElementById('q-feedback').className = 'quest-feedback';
+    document.getElementById('q-feedback').textContent = '';
+    document.getElementById('q-close').style.display = 'none';
+
+    const opts = document.getElementById('q-options');
+    opts.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quest-opt';
+      btn.textContent = opt.text;
+      btn.onclick = () => answerQuest(opt, i, btn);
+      opts.appendChild(btn);
+    });
+
+    document.getElementById('quest-dialog').classList.add('active');
+
+    // Двигаем персонажа к объекту
+    const positions = { laptop: [80, 60], board: [220, 60], server: [400, 60], monitor: [540, 60] };
+    if (positions[id]) movePlayer(positions[id][0], 60);
+  }
+
+  function answerQuest(opt, idx, btn) {
+    if (questAnswered) return;
+    questAnswered = true;
+
+    document.querySelectorAll('.quest-opt').forEach(b => b.style.pointerEvents = 'none');
+    btn.className = 'quest-opt ' + (opt.correct ? 'correct' : 'wrong');
+
+    const fb = document.getElementById('q-feedback');
+    fb.textContent = opt.fb;
+    fb.className = 'quest-feedback ' + (opt.correct ? 'ok' : 'error');
+    document.getElementById('q-close').style.display = 'block';
+
+    if (opt.correct) {
+      completedQuests.add(currentQuest);
+      document.getElementById('obj-' + currentQuest).classList.add('done');
+      updateHUD();
+    }
+  }
+
+  function closeQuest() {
+    document.getElementById('quest-dialog').classList.remove('active');
+    currentQuest = null;
+  }
+
+  function takeCoffee() {
+    showToast('☕ Стресс снизился!');
+    const bar = document.getElementById('bar-stress');
+    const cur = parseInt(bar.style.width) || 30;
+    bar.style.width = Math.max(5, cur - 10) + '%';
+    movePlayer(720, 60);
+  }
+
+  function openDeploy() {
+    if (completedQuests.size < 3) {
+      showToast('❌ Сначала выполни все квесты!');
+      return;
+    }
+    setTimeout(() => goTo('final'), 400);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // Анимация баров на финале
+  document.querySelectorAll('.skill-fill').forEach((el, i) => {
+    const widths = ['90%', '75%', '80%'];
+    el.style.setProperty('--target', widths[i] || '70%');
+    const screen = document.getElementById('screen-final');
+    const obs = new MutationObserver(() => {
+      if (screen.classList.contains('active')) {
+        setTimeout(() => { el.style.width = widths[i] || '70%'; }, 200 + i * 200);
+      } else {
+        el.style.width = '0';
+      }
+    });
+    obs.observe(screen, { attributeFilter: ['class'] });
+  });
+</script>
+</body>
+</html>

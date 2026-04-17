@@ -1,3 +1,5 @@
+import { REFS } from './references.js'
+
 export const scenarios = [
   {
     id: 0,
@@ -272,3 +274,9 @@ export const scenarios = [
     ]
   }
 ]
+
+scenarios.forEach(scenario => {
+  if (REFS[scenario.id]) {
+    scenario.choices.forEach(c => { c.reference = REFS[scenario.id] })
+  }
+})

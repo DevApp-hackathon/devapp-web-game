@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixel Office Scene</title>
+  <style>
+    :root {
+      --scene-width: 1365px;
+      --scene-height: 768px;
+
+      --ui-bg: rgba(10, 14, 22, 0.88);
+      --ui-border: #78d7ff;
+      --ui-text: #ffffff;
+      --ui-accent: #ffe66d;
+
+      --shadow-dark: rgba(0, 0, 0, 0.28);
+      --shadow-soft: rgba(0, 0, 0, 0.18);
+
+      --wall-tint: rgba(255, 232, 180, 0.05);
+      --floor-vignette: rgba(0, 0, 0, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #111827;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .game {
+      position: relative;
+      width: min(100vw, calc(100vh * 1.778));
+      aspect-ratio: 1365 / 768;
+      background: #000;
+      overflow: hidden;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: 2px solid #1f2d42;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: url("./src/assets/bg_room.png") center/cover no-repeat;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom, var(--wall-tint), rgba(0, 0, 0, 0)),
+        radial-gradient(circle at center, transparent 55%, var(--floor-vignette) 100%);
+      z-index: 50;
+    }
+
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(255, 214, 120, 0.035);
+      z-index: 51;
+    }
+
+    .object {
+      position: absolute;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      user-select: none;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .shadow {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--shadow-dark) 0%, var(--shadow-soft) 50%, transparent 75%);
+      filter: blur(2px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 40;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .hotspot:hover {
+      outline: 1px dashed rgba(120, 215, 255, 0.35);
+      outline-offset: 0;
+    }
+
+    .player {
+      position: absolute;
+      width: 52px;
+      height: 72px;
+      left: 640px;
+      top: 600px;
+      z-index: 30;
+      background: url("./src/assets/player.png") center/contain no-repeat;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transition: transform 0.08s linear;
+    }
+
+    .interaction-ui {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      min-width: 240px;
+      max-width: 70%;
+      padding: 10px 16px;
+      color: var(--ui-text);
+      background: var(--ui-bg);
+      border: 2px solid var(--ui-border);
+      box-shadow:
+        0 0 0 2px rgba(0, 0, 0, 0.35) inset,
+        0 6px 18px rgba(0, 0, 0, 0.35);
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: 0.5px;
+      text-align: center;
+      display: none;
+      z-index: 100;
+      image-rendering: pixelated;
+    }
+
+    .interaction-ui span.key {
+      color: var(--ui-accent);
+      margin-right: 6px;
+    }
+
+    .github-corner {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      width: 64px;
+      height: 64px;
+      z-index: 60;
+      background: url("./src/assets/github_icon.png") center/contain no-repeat;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+      pointer-events: none;
+    }
+
+    .debug .hotspot {
+      background: rgba(0, 255, 255, 0.12);
+      outline: 1px solid rgba(0, 255, 255, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="game" id="game">
+    <div class="scene" id="scene">
+
+      <!-- Маленький значок GitHub в левом верхнем углу -->
+      <div class="github-corner"></div>
+
+      <!-- ===== ТЕНИ ===== -->
+      <div class="shadow" style="left: 5px;   top: 393px; width: 130px; height: 28px;"></div>  <!-- сервер -->
+      <div class="shadow" style="left: 165px; top: 338px; width: 310px; height: 24px;"></div>  <!-- рабочий стол -->
+      <div class="shadow" style="left: 595px; top: 331px; width: 215px; height: 24px;"></div>  <!-- кофе-зона -->
+      <div class="shadow" style="left: 870px; top: 362px; width: 215px; height: 26px;"></div>  <!-- кресло с жуком -->
+      <div class="shadow" style="left: 935px; top: 502px; width: 380px; height: 42px;"></div>  <!-- теннисный стол -->
+      <div class="shadow" style="left: 60px;  top: 592px; width: 165px; height: 20px;"></div>  <!-- белая доска -->
+      <div class="shadow" style="left: 340px; top: 685px; width: 570px; height: 36px;"></div>  <!-- lounge_set -->
+
+      <!-- ===== ОБЪЕКТЫ ===== -->
+      <!-- Сервер: orig 0-135 × 230-520 → game 0×177 138×223 -->
+      <div class="object" style="left: 0px;    top: 177px; width: 138px; height: 223px; background-image: url('./src/assets/server_rack.png');"></div>
+      <!-- Доска: orig 135-535 × 55-250 → game 138×42 410×150 -->
+      <div class="object" style="left: 138px;  top: 42px;  width: 410px; height: 150px; background-image: url('./src/assets/board_wall.png');"></div>
+      <!-- Dashboard: orig 545-855 × 65-180 → game 559×50 318×88 -->
+      <div class="object" style="left: 559px;  top: 50px;  width: 318px; height: 88px;  background-image: url('./src/assets/dashboard.png');"></div>
+      <!-- GitHub sign: orig 860-1230 × 55-180 → game 882×42 379×96 -->
+      <div class="object" style="left: 882px;  top: 42px;  width: 379px; height: 96px;  background-image: url('./src/assets/vyveska_github.png');"></div>
+      <!-- Plant top-right: orig 1195-1330 × 165-360 → game 1226×127 138×150 -->
+      <div class="object" style="left: 1226px; top: 127px; width: 138px; height: 150px; background-image: url('./src/assets/Pixel art potted houseplant in terracotta.png');"></div>
+      <!-- Work desk: orig 120-525 × 245-450 → game 123×188 415×157 -->
+      <div class="object" style="left: 123px;  top: 188px; width: 415px; height: 157px; background-image: url('./src/assets/work_desk.png');"></div>
+      <!-- Coffee zone: orig 555-820 × 215-440 → game 569×165 272×173 -->
+      <div class="object" style="left: 569px;  top: 165px; width: 272px; height: 173px; background-image: url('./src/assets/kofeynaya_zona.png');"></div>
+      <!-- Bug in chair: orig 815-1090 × 225-480 → game 836×173 282×196 -->
+      <div class="object" style="left: 836px;  top: 173px; width: 282px; height: 196px; background-image: url('./src/assets/zhuk_v_kresle.png');"></div>
+      <!-- Ping pong: orig 878-1330 × 395-665 → game 900×303 464×207 -->
+      <div class="object" style="left: 900px;  top: 303px; width: 464px; height: 207px; background-image: url('./src/assets/stol_dlya_ping_ponga.png');"></div>
+      <!-- Whiteboard: orig 0-290 × 455-780 → game 0×349 297×250 -->
+      <div class="object" style="left: 0px;    top: 349px; width: 297px; height: 250px; background-image: url('./src/assets/belaya_doska_na_trenoge.png');"></div>
+      <!-- Lounge set: orig 255-940 × 490-900 → game 261×376 702×315 -->
+      <div class="object" style="left: 261px;  top: 376px; width: 702px; height: 315px; background-image: url('./src/assets/zona_otdyha.png');"></div>
+      <!-- Plant bottom-right: orig 1155-1330 × 580-830 → game 1185×445 179×192 -->
+      <div class="object" style="left: 1185px; top: 445px; width: 179px; height: 192px; background-image: url('./src/assets/Pixel art potted houseplant in terracotta.png');"></div>
+
+      <!-- Игрок -->
+      <div class="player" id="player"></div>
+
+      <!-- ===== HOTSPOTS ===== -->
+      <div class="hotspot"
+           data-name="Диван"
+           style="left: 385px; top: 470px; width: 340px; height: 160px;"></div>
+
+      <div class="hotspot"
+           data-name="Панель мониторинга"
+           style="left: 562px; top: 52px; width: 312px; height: 82px;"></div>
+
+      <div class="hotspot"
+           data-name="Серверный шкаф"
+           style="left: 8px; top: 180px; width: 118px; height: 210px;"></div>
+
+      <div class="hotspot"
+           data-name="Кофе-зона"
+           style="left: 572px; top: 168px; width: 262px; height: 160px;"></div>
+
+      <div class="hotspot"
+           data-name="Ноутбук"
+           style="left: 128px; top: 192px; width: 260px; height: 130px;"></div>
+
+      <div class="hotspot"
+           data-name="Вывеска GitHub"
+           style="left: 885px; top: 46px; width: 370px; height: 86px;"></div>
+
+      <div class="interaction-ui" id="interactionUI">
+        <span class="key">[E]</span>
+        <span id="interactionText">Объект</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const player = document.getElementById("player");
+    const hotspots = [...document.querySelectorAll(".hotspot")];
+    const interactionUI = document.getElementById("interactionUI");
+    const interactionText = document.getElementById("interactionText");
+    const game = document.getElementById("game");
+
+    const SCENE_WIDTH = 1365;
+    const SCENE_HEIGHT = 768;
+    const PLAYER_WIDTH = 52;
+    const PLAYER_HEIGHT = 72;
+
+    const playerState = {
+      x: 640,
+      y: 600,
+      speed: 3.2
+    };
+
+    const keys = new Set();
+    let nearestHotspot = null;
+
+    window.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      keys.add(key);
+
+      if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+        e.preventDefault();
+      }
+
+      if (key === "e" && nearestHotspot) {
+        console.log("Interact with:", nearestHotspot.dataset.name);
+      }
+
+      if (key === "`") {
+        game.classList.toggle("debug");
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      keys.delete(e.key.toLowerCase());
+    });
+
+    function updatePlayerMovement() {
+      let dx = 0;
+      let dy = 0;
+
+      if (keys.has("arrowleft") || keys.has("a")) dx -= 1;
+      if (keys.has("arrowright") || keys.has("d")) dx += 1;
+      if (keys.has("arrowup") || keys.has("w")) dy -= 1;
+      if (keys.has("arrowdown") || keys.has("s")) dy += 1;
+
+      if (dx !== 0 && dy !== 0) {
+        dx *= 0.7071;
+        dy *= 0.7071;
+      }
+
+      playerState.x += dx * playerState.speed;
+      playerState.y += dy * playerState.speed;
+
+      playerState.x = Math.max(0, Math.min(playerState.x, SCENE_WIDTH - PLAYER_WIDTH));
+      playerState.y = Math.max(0, Math.min(playerState.y, SCENE_HEIGHT - PLAYER_HEIGHT));
+
+      player.style.left = `${playerState.x}px`;
+      player.style.top = `${playerState.y}px`;
+
+      if (dx < 0) player.style.transform = "scaleX(-1)";
+      if (dx > 0) player.style.transform = "scaleX(1)";
+    }
+
+    function getRect(el) {
+      return {
+        left: parseFloat(el.style.left),
+        top: parseFloat(el.style.top),
+        width: parseFloat(el.style.width),
+        height: parseFloat(el.style.height)
+      };
+    }
+
+    function getPlayerFeet() {
+      return {
+        x: playerState.x + PLAYER_WIDTH / 2,
+        y: playerState.y + PLAYER_HEIGHT - 6
+      };
+    }
+
+    function distanceToHotspot(hotspot) {
+      const rect = getRect(hotspot);
+      const feet = getPlayerFeet();
+
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      const dx = feet.x - cx;
+      const dy = feet.y - cy;
+
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function updateInteraction() {
+      const maxDistance = 120;
+      let closest = null;
+      let closestDist = Infinity;
+
+      for (const hotspot of hotspots) {
+        const dist = distanceToHotspot(hotspot);
+        if (dist < maxDistance && dist < closestDist) {
+          closest = hotspot;
+          closestDist = dist;
+        }
+      }
+
+      nearestHotspot = closest;
+
+      if (nearestHotspot) {
+        interactionText.textContent = nearestHotspot.dataset.name;
+        interactionUI.style.display = "block";
+      } else {
+        interactionUI.style.display = "none";
+      }
+    }
+
+    function loop() {
+      updatePlayerMovement();
+      updateInteraction();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

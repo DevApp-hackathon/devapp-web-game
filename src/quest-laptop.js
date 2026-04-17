@@ -14,9 +14,9 @@ const INTRO_SLIDES = [
 
 // Данные для трёх вариантов
 const CHOICES = [
-  { text: 'Выложить вручную\nна сервер', minigame: 'manual', choiceIndex: 0 },
-  { text: 'Настроить CI/CD', minigame: 'cicd', choiceIndex: 1 },
-  { text: 'Отложить до\n"идеального состояния"', minigame: 'delay', choiceIndex: 2 },
+  { text: 'Выложить вручную\nна сервер', minigame: 'manual', choiceIndex: 0, correct: false },
+  { text: 'Настроить CI/CD', minigame: 'cicd', choiceIndex: 1, correct: true },
+  { text: 'Отложить до\n"идеального состояния"', minigame: 'delay', choiceIndex: 2, correct: false },
 ]
 
 // Шаги ручного деплоя
@@ -71,7 +71,7 @@ function initLaptopQuest() {
   const overlay = document.getElementById('quest-overlay')
 
   function show(sectionId) {
-    ['quest-intro', 'quest-choice', 'mg-manual', 'mg-cicd', 'mg-delay']
+    ['quest-intro', 'quest-choice', 'quest-mg', 'mg-manual', 'mg-cicd', 'mg-delay']
       .forEach(id => {
         const el = document.getElementById(id)
         if (el) el.style.display = id === sectionId ? 'block' : 'none'
@@ -82,6 +82,18 @@ function initLaptopQuest() {
     overlay.style.display = 'none'
     clearDelayTimers()
     window.dispatchEvent(new CustomEvent('quest-laptop-done', { detail: { choiceIndex } }))
+  }
+
+  function getChoiceCornerPupsHTML() {
+    return `<img src="./src/assets/pups.png" style="position:absolute;top:-10px;left:-18px;width:144px;height:144px;object-fit:contain;pointer-events:none;z-index:20;">`
+  }
+
+  function getResultPupsHTML(choiceIndex = selectedChoiceIndex) {
+    const isCorrect = CHOICES[choiceIndex]?.correct
+    const src = isCorrect ? './src/assets/pups_smile.png' : './src/assets/pups_no_smile.png'
+    return `<div style="display:flex;justify-content:center;margin-bottom:18px;">
+      <img src="${src}" style="width:264px;height:264px;object-fit:contain;display:block;">
+    </div>`
   }
 
   function clearDelayTimers() {
@@ -97,25 +109,19 @@ function initLaptopQuest() {
     const container = document.getElementById('quest-intro')
 
     container.innerHTML = `
-      <div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:20px;">
-        <div style="flex-shrink:0;">
-          <div style="width:72px;height:72px;background:#1a1a3e;border:2px solid ${slide.color};border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
-            <div style="display:flex;gap:8px;">
-              <div style="width:12px;height:10px;background:${slide.color};border-radius:2px;"></div>
-              <div style="width:12px;height:10px;background:${slide.color};border-radius:2px;"></div>
-            </div>
-            <div style="width:28px;height:7px;background:${slide.color};border-radius:2px;margin-top:4px;"></div>
-          </div>
-          <div style="text-align:center;font-size:7px;color:#666;margin-top:6px;">DevBot</div>
+      <div style="display:flex;align-items:flex-start;gap:40px;margin-bottom:32px;">
+        <div style="flex-shrink:0;text-align:center;">
+          <img src="./src/assets/DevBot.png" style="width:208px;height:208px;object-fit:contain;display:block;">
+          <div style="font-size:11px;color:#666;margin-top:10px;">DevBot</div>
         </div>
-        <div style="background:#1e1e3e;border:1px solid ${slide.color};border-radius:8px;padding:14px;flex:1;">
-          <div style="font-size:10px;color:${slide.color};line-height:1.9;white-space:pre-line;">${slide.bot}</div>
+        <div style="background:#1e1e3e;border:1px solid ${slide.color};border-radius:8px;padding:24px;flex:1;margin-top:28px;">
+          <div style="font-size:15px;color:${slide.color};line-height:2.25;white-space:pre-line;">${slide.bot}</div>
         </div>
       </div>
-      <div style="background:#161628;border:1px solid #333355;border-radius:8px;padding:18px;margin-bottom:20px;font-size:10px;color:#fff;line-height:2;white-space:pre-line;">${slide.text}</div>
+      <div style="background:#161628;border:1px solid #333355;border-radius:8px;padding:30px;margin-bottom:28px;font-size:15px;color:#fff;line-height:2.35;white-space:pre-line;">${slide.text}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:7px;color:#444466;">${slideIndex + 1} / ${INTRO_SLIDES.length}</div>
-        <button id="intro-next" style="padding:10px 24px;background:${isLast ? '#00ff88' : '#00d4ff'};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:11px;color:#0d0d1f;cursor:pointer;">
+        <div style="font-size:11px;color:#444466;">${slideIndex + 1} / ${INTRO_SLIDES.length}</div>
+        <button id="intro-next" style="padding:16px 32px;background:${isLast ? '#00ff88' : '#00d4ff'};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">
           ${isLast ? 'ВЫБРАТЬ →' : 'ДАЛЕЕ →'}
         </button>
       </div>
@@ -129,21 +135,30 @@ function initLaptopQuest() {
   // ─── CHOICE ──────────────────────────────────────────
   function renderChoice() {
     show('quest-choice')
+    const used = window._usedChoices?.[0] || new Set()
     const container = document.getElementById('quest-choice')
     container.innerHTML = `
-      <div style="font-size:13px;color:#00d4ff;text-align:center;margin-bottom:12px;">КАК БУДЕМ ДЕПЛОИТЬ?</div>
-      <div style="font-size:9px;color:#888;text-align:center;margin-bottom:22px;line-height:1.8;">
-        У команды готов первый билд. Инвесторы ждут демо через 2 дня.
+      <div style="position:relative;overflow:visible;">
+        ${getChoiceCornerPupsHTML()}
+        <div style="margin-left:120px;margin-bottom:24px;">
+          <div style="font-size:15px;color:#00d4ff;text-align:center;margin-bottom:14px;">КАК БУДЕМ ДЕПЛОИТЬ?</div>
+          <div style="font-size:10px;color:#888;text-align:center;line-height:1.9;">
+            У команды готов первый билд. Инвесторы ждут демо через 2 дня.
+          </div>
+        </div>
       </div>
-      <div id="choice-btns" style="display:flex;flex-direction:column;gap:12px;">
-        ${CHOICES.map((c, i) => `
-          <button data-i="${i}" style="padding:16px;background:#2a2a4a;border:1px solid #444466;border-radius:8px;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;cursor:pointer;text-align:center;line-height:1.8;transition:background 0.2s;">
-            ${c.text.replace('\n', '<br>')}
-          </button>
-        `).join('')}
+      <div style="position:relative;background:#161628;border:1px solid #333355;border-radius:8px;padding:32px 22px 22px;overflow:visible;">
+        <div id="choice-btns" style="display:flex;flex-direction:column;gap:20px;position:relative;z-index:2;">
+          ${CHOICES.map((c, i) => {
+            const isUsed = used.has(i)
+            return `<button data-i="${i}" ${isUsed ? 'disabled' : ''} style="min-height:132px;padding:34px 24px;background:${isUsed ? '#161622' : '#2a2a4a'};border:1px solid ${isUsed ? '#2a2a3a' : '#444466'};border-radius:8px;font-family:'Press Start 2P',monospace;font-size:18px;color:${isUsed ? '#444455' : '#fff'};cursor:${isUsed ? 'not-allowed' : 'pointer'};text-align:center;line-height:2.05;transition:background 0.2s;">
+              ${isUsed ? '✓ ' : ''}${c.text.replace('\n', '<br>')}
+            </button>`
+          }).join('')}
+        </div>
       </div>
     `
-    container.querySelectorAll('[data-i]').forEach(btn => {
+    container.querySelectorAll('[data-i]:not([disabled])').forEach(btn => {
       btn.onmouseenter = () => btn.style.background = '#3a3a6a'
       btn.onmouseleave = () => btn.style.background = '#2a2a4a'
       btn.onclick = () => {
@@ -166,17 +181,18 @@ function initLaptopQuest() {
     function renderStep() {
       if (stepIndex >= MANUAL_STEPS.length) {
         container.innerHTML = `
-          <div style="font-size:13px;color:#ff4444;text-align:center;margin-bottom:16px;">ДЕПЛОЙ ЗАВЕРШЁН</div>
-          <div style="background:#1f0808;border:1px solid #ff4444;border-radius:8px;padding:20px;margin-bottom:16px;font-size:9px;color:#ff8888;line-height:2.2;">
+          ${getResultPupsHTML(selectedChoiceIndex)}
+          <div style="font-size:18px;color:#ff4444;text-align:center;margin-bottom:22px;">ДЕПЛОЙ ЗАВЕРШЁН</div>
+          <div style="background:#1f0808;border:1px solid #ff4444;border-radius:8px;padding:30px;margin-bottom:22px;font-size:13px;color:#ff8888;line-height:2.45;">
             ⏱ Общее время: <span style="color:#fff">~${totalTime} минут</span><br>
             🔴 Даунтайм: <span style="color:#fff">8 минут</span><br>
             💀 Критических ошибок: <span style="color:#fff">1</span><br>
             😰 Причина: ручной деплой = человеческий фактор
           </div>
-          <div style="font-size:8px;color:#666;margin-bottom:20px;">
+          <div style="font-size:12px;color:#666;margin-bottom:28px;line-height:2.15;">
             С CI/CD этот процесс занял бы 3 минуты. Полностью автоматически.
           </div>
-          <button id="manual-done" style="width:100%;padding:12px;background:#ff4444;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:11px;color:#fff;cursor:pointer;">
+          <button id="manual-done" style="width:100%;padding:18px;background:#ff4444;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">
             ПОНЯЛ, УЧТУ →
           </button>
         `
@@ -329,21 +345,22 @@ function initLaptopQuest() {
   function showCICDSuccess() {
     const container = document.getElementById('mg-cicd')
     container.innerHTML = `
-      <div style="font-size:13px;color:#00ff88;text-align:center;margin-bottom:16px;">✓ ПАЙПЛАЙН СОБРАН!</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+      ${getResultPupsHTML(selectedChoiceIndex)}
+      <div style="font-size:18px;color:#00ff88;text-align:center;margin-bottom:22px;">✓ ПАЙПЛАЙН СОБРАН!</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap;">
         ${PIPELINE_CARDS.map((c, i) => `
           <div style="display:flex;align-items:center;gap:6px;">
-            <div style="padding:8px 12px;background:#1a7acc;border-radius:5px;font-size:8px;color:#fff;text-align:center;line-height:1.7;">${c.text.replace('\n','<br>')}</div>
-            ${i < 4 ? '<div style="color:#00ff88;font-size:14px;">→</div>' : ''}
+            <div style="padding:14px 18px;background:#1a7acc;border-radius:5px;font-size:12px;color:#fff;text-align:center;line-height:2.05;">${c.text.replace('\n','<br>')}</div>
+            ${i < 4 ? '<div style="color:#00ff88;font-size:18px;">→</div>' : ''}
           </div>
         `).join('')}
       </div>
-      <div style="background:#0a1a0a;border:1px solid #00aa44;border-radius:8px;padding:16px;margin-bottom:16px;font-size:8px;color:#aaffaa;line-height:2;">
+      <div style="background:#0a1a0a;border:1px solid #00aa44;border-radius:8px;padding:26px;margin-bottom:22px;font-size:12px;color:#aaffaa;line-height:2.35;">
         🚀 Теперь при каждом коммите система сама прогоняет все шаги.<br>
         ⏱ Время деплоя: <span style="color:#fff">~3 минуты</span> вместо 47.<br>
         ✅ Человеческий фактор исключён.
       </div>
-      <button id="cicd-done" style="width:100%;padding:12px;background:#00ff88;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:11px;color:#0d0d1f;cursor:pointer;">
+      <button id="cicd-done" style="width:100%;padding:18px;background:#00ff88;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">
         ОТЛИЧНО! →
       </button>
     `
@@ -409,15 +426,16 @@ function initLaptopQuest() {
       }
 
       container.innerHTML = `
-        <div style="font-size:11px;color:#ffaa00;text-align:center;margin-bottom:16px;">ВРЕМЯ ВЫШЛО</div>
-        <div style="background:#1f0d00;border:1px solid #cc5500;border-radius:8px;padding:18px;margin-bottom:16px;font-size:9px;color:#ffaa66;line-height:2;text-align:center;white-space:pre-line;">
+        ${getResultPupsHTML(selectedChoiceIndex)}
+        <div style="font-size:18px;color:#ffaa00;text-align:center;margin-bottom:22px;">ВРЕМЯ ВЫШЛО</div>
+        <div style="background:#1f0d00;border:1px solid #cc5500;border-radius:8px;padding:28px;margin-bottom:22px;font-size:13px;color:#ffaa66;line-height:2.35;text-align:center;white-space:pre-line;">
           <span style="color:${color}">${verdict}</span>
         </div>
-        <div style="font-size:8px;color:#666;margin-bottom:20px;text-align:center;line-height:1.8;">
+        <div style="font-size:12px;color:#666;margin-bottom:28px;text-align:center;line-height:2.15;">
           Ожидание "идеального момента" — это антипаттерн.<br>
           Лучше выпускать часто и малыми итерациями.
         </div>
-        <button id="delay-done" style="width:100%;padding:12px;background:#ff8844;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:11px;color:#fff;cursor:pointer;">
+        <button id="delay-done" style="width:100%;padding:18px;background:#ff8844;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">
           ПОНЯЛ →
         </button>
       `
@@ -434,11 +452,12 @@ function initLaptopQuest() {
     renderIntro()
   }
 
-  document.getElementById('quest-close').onclick = () => {
+  const laptopClose = () => {
     overlay.style.display = 'none'
     clearDelayTimers()
     window.dispatchEvent(new Event('quest-laptop-closed'))
   }
+  document.getElementById('quest-close').onclick = laptopClose
 }
 
 if (document.readyState === 'loading') {

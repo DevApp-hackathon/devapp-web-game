@@ -21,22 +21,13 @@ export default class FeedbackScene extends Phaser.Scene {
     const panel = this.add.rectangle(640, 370, 900, 620, 0x12122a)
     panel.setStrokeStyle(2, isCorrect ? 0x00ff88 : 0xff4444)
 
-    // --- DevBot аватар ---
+    // --- Pups аватар ---
     const botX = 200
     const botY = 150
+    const companionKey = isCorrect ? 'pups-smile' : 'pups-no-smile'
 
-    // Тело робота
-    this.add.rectangle(botX, botY, 64, 64, 0x1a1a3e).setStrokeStyle(2, isCorrect ? 0x00ff88 : 0xff4444)
-    // Глаза
-    this.add.rectangle(botX - 14, botY - 8, 12, 10, isCorrect ? 0x00ff88 : 0xff4444)
-    this.add.rectangle(botX + 14, botY - 8, 12, 10, isCorrect ? 0x00ff88 : 0xff4444)
-    // Рот
-    this.add.rectangle(botX, botY + 14, 28, 6, isCorrect ? 0x00ff88 : 0xff6644)
-    // Антенна
-    this.add.rectangle(botX, botY - 42, 4, 16, 0x888888)
-    this.add.circle(botX, botY - 52, 6, isCorrect ? 0x00ff88 : 0xff4444)
-    // Имя
-    this.add.text(botX, botY + 46, 'DevBot', {
+    this.add.image(botX, botY, companionKey).setDisplaySize(124, 124)
+    this.add.text(botX, botY + 74, 'Pups', {
       fontSize: '8px',
       color: '#888888',
       fontFamily: '"Press Start 2P"'
@@ -96,18 +87,21 @@ export default class FeedbackScene extends Phaser.Scene {
       fontSize: '8px', color: '#888888', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
-    // --- Кнопка ---
-    const isLast = gameState.step >= 7
-    const btnLabel = isLast ? 'РЕЗУЛЬТАТ' : 'ДАЛЕЕ →'
-    const btn = this.add.rectangle(640, 590, 260, 48, 0x00d4ff).setInteractive()
-    this.add.text(640, 590, btnLabel, {
-      fontSize: '12px', color: '#1a1a2e', fontFamily: '"Press Start 2P"'
+    // --- Кнопки ---
+    const isLast    = gameState.step >= 7
+    const isGameOver = gameState.anger >= 100
+    const btnLabel  = (isLast || isGameOver) ? (isGameOver ? 'ИГРА ОКОНЧЕНА' : 'РЕЗУЛЬТАТ') : 'ДАЛЕЕ →'
+    const btnColor  = isGameOver ? 0xff4444 : 0x00d4ff
+
+    const btn = this.add.rectangle(490, 590, 260, 48, btnColor).setInteractive({ useHandCursor: true })
+    this.add.text(490, 590, btnLabel, {
+      fontSize: '10px', color: '#1a1a2e', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
-    btn.on('pointerover', () => btn.setFillStyle(0x0099bb))
-    btn.on('pointerout',  () => btn.setFillStyle(0x00d4ff))
+    btn.on('pointerover', () => btn.setFillStyle(isGameOver ? 0xcc2222 : 0x0099bb))
+    btn.on('pointerout',  () => btn.setFillStyle(btnColor))
     btn.on('pointerdown', () => {
-      if (isLast) {
+      if (isLast || isGameOver) {
         this.scene.stop('GameScene')
         this.scene.start('FinalScene', { gameState })
       } else {
@@ -115,6 +109,20 @@ export default class FeedbackScene extends Phaser.Scene {
         this.scene.resume('GameScene')
       }
     })
+
+    if (choice.reference) {
+      const refBtn = this.add.rectangle(800, 590, 240, 48, 0x1a1a3a).setInteractive({ useHandCursor: true })
+      refBtn.setStrokeStyle(2, 0x4499ff)
+      this.add.text(800, 590, '📖 СПРАВОЧНИК', {
+        fontSize: '9px', color: '#4499ff', fontFamily: '"Press Start 2P"'
+      }).setOrigin(0.5)
+
+      refBtn.on('pointerover', () => refBtn.setFillStyle(0x2a2a5a))
+      refBtn.on('pointerout',  () => refBtn.setFillStyle(0x1a1a3a))
+      refBtn.on('pointerdown', () => {
+        this.scene.launch('ReferenceScene', { reference: choice.reference })
+      })
+    }
   }
 
   getBotPhraseCorrect() {

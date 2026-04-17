@@ -1,5 +1,74 @@
 // Quest Engine — обрабатывает квесты 1-6 (квест 0 = ноутбук, отдельный файл)
 
+const REFERENCES = {
+  1: {
+    title: 'ТЕСТИРОВАНИЕ',
+    color: '#00aaff',
+    items: [
+      { term: 'Unit тесты',       desc: 'Тестируют одну функцию. Быстрые и дешёвые — их должно быть больше всего.' },
+      { term: 'Integration',      desc: 'Проверяют взаимодействие нескольких модулей между собой.' },
+      { term: 'E2E тесты',        desc: 'Полный сценарий пользователя. Медленные — их мало, но они важны.' },
+      { term: 'Пирамида тестов',  desc: 'Unit (много) → Integration → E2E (мало). Чем выше — тем дороже.' },
+      { term: 'TDD',              desc: 'Test-Driven Development: сначала пишешь тест, потом код под него.' },
+    ]
+  },
+  2: {
+    title: 'АВТОМАТИЗАЦИЯ',
+    color: '#ffaa00',
+    items: [
+      { term: 'CI/CD',            desc: 'Автозапуск тестов и деплоя при каждом коммите в репозиторий.' },
+      { term: 'GitHub Actions',   desc: 'Настраивается через .yml файл прямо в папке .github/workflows/.' },
+      { term: 'Makefile',         desc: 'Стандартизирует команды: make build, make test, make deploy.' },
+      { term: 'Docker',           desc: 'Контейнер = одинаковое окружение на всех машинах и в продакшене.' },
+      { term: 'DRY принцип',      desc: 'Don\'t Repeat Yourself — автоматизируй всё что делаешь чаще 2 раз.' },
+    ]
+  },
+  3: {
+    title: 'ЛОГИРОВАНИЕ',
+    color: '#aa44ff',
+    items: [
+      { term: 'Уровни логов',     desc: 'ERROR > WARN > INFO > DEBUG. ERROR — критично, DEBUG — подробности.' },
+      { term: 'JSON-логи',        desc: 'Структурированный формат. Легко искать, фильтровать и строить графики.' },
+      { term: 'ELK Stack',        desc: 'Elasticsearch + Logstash + Kibana — стандарт хранения и поиска логов.' },
+      { term: 'Ключевые поля',    desc: 'timestamp, level, message, service, traceId — минимум для любого лога.' },
+      { term: 'MTTR',             desc: 'Mean Time To Recovery — среднее время восстановления. Логи снижают его.' },
+    ]
+  },
+  4: {
+    title: 'МОНИТОРИНГ',
+    color: '#ff4488',
+    items: [
+      { term: '4 Golden Signals', desc: 'Latency, Traffic, Errors, Saturation — стандарт Google SRE для алертов.' },
+      { term: 'Prometheus',       desc: 'Система сбора метрик в формате time series. Pull-модель опроса сервисов.' },
+      { term: 'Grafana',          desc: 'Визуализация метрик. Строит дашборды и отправляет алерты по порогам.' },
+      { term: 'SLO / SLA',        desc: 'SLO — внутренняя цель доступности. SLA — договорённость с клиентом.' },
+      { term: 'Алерт',            desc: 'Автоуведомление при превышении порога. Должен будить до пользователей.' },
+    ]
+  },
+  5: {
+    title: 'КАЧЕСТВО И СКОРОСТЬ',
+    color: '#44ddff',
+    items: [
+      { term: 'Quality Gate',     desc: 'Автопроверка перед мержем: тесты, security scan, линтер.' },
+      { term: 'Технический долг', desc: 'Цена отложенных решений. Со временем растёт и тормозит разработку.' },
+      { term: 'Feature Flag',     desc: 'Выпускаешь код скрытым, включаешь по кнопке. Безопасный деплой.' },
+      { term: 'DORA метрики',     desc: 'Deployment Frequency, Lead Time, MTTR, Change Failure Rate.' },
+      { term: 'Hotfix',           desc: 'Срочный фикс в прод. Нужен автоматизированный CI/CD чтобы сделать быстро.' },
+    ]
+  },
+  6: {
+    title: 'ДЕПЛОЙ',
+    color: '#ff8800',
+    items: [
+      { term: 'Blue/Green',       desc: 'Два одинаковых окружения. Переключаешь трафик мгновенно — ноль даунтайма.' },
+      { term: 'Rolling deploy',   desc: 'Постепенная замена инстансов новой версией. Без остановки сервиса.' },
+      { term: 'Health check',     desc: 'Проверка что сервис жив после деплоя. Обычно GET /health → 200 OK.' },
+      { term: 'Rollback',         desc: 'Откат на предыдущую версию. Должен быть одной командой, в идеале — авто.' },
+      { term: 'Smoke test',       desc: 'Быстрая проверка ключевых функций сразу после деплоя в прод.' },
+    ]
+  },
+}
+
 const QUEST_DATA = {
 
   // ── СЕРВЕР: Автотесты ──────────────────────────────────────────
@@ -23,6 +92,7 @@ const QUEST_DATA = {
         progressDelta: 10, angerDelta: 20, stressDelta: 20, correct: false,
         explanation: 'Ошибка. Без тестов команда\nузнает о проблемах слишком поздно.',
         tip: 'Автоматизируй то, что повторяется чаще всего.',
+        reference: REFERENCES[1],
         minigame: {
           type: 'bubbles',
           title: '🐛 БАГИ В ПРОДАКШЕНЕ!',
@@ -42,6 +112,7 @@ const QUEST_DATA = {
         progressDelta: 15, angerDelta: -5, stressDelta: -10, correct: true,
         explanation: 'Верно! Автотесты помогают быстро\nпроверять критичные части.',
         tip: 'Автоматизируй то, что повторяется чаще всего.',
+        reference: REFERENCES[1],
         minigame: {
           type: 'queue',
           title: '🧪 СОБЕРИ ПИРАМИДУ ТЕСТОВ',
@@ -62,6 +133,7 @@ const QUEST_DATA = {
         progressDelta: 8, angerDelta: 8, stressDelta: 15, correct: false,
         explanation: 'Частично верно. Ручная проверка\nплохо масштабируется.',
         tip: 'Автоматизируй то, что повторяется чаще всего.',
+        reference: REFERENCES[1],
         minigame: {
           type: 'clicker',
           title: 'РУЧНОЕ ТЕСТИРОВАНИЕ',
@@ -109,6 +181,7 @@ const QUEST_DATA = {
         progressDelta: 5, angerDelta: 15, stressDelta: 20, correct: false,
         explanation: 'Ошибка. Маленькая команда особенно\nстрадает от ручной рутины.',
         tip: 'DevOps начинается там, где повторяемые действия автоматизируются.',
+        reference: REFERENCES[2],
         minigame: {
           type: 'clicker',
           title: 'РУЧНАЯ СБОРКА — КАЖДУЮ НЕДЕЛЮ',
@@ -137,6 +210,7 @@ const QUEST_DATA = {
         progressDelta: 18, angerDelta: -5, stressDelta: -15, correct: true,
         explanation: 'Верно! Автоматизация освобождает\nвремя команды.',
         tip: 'DevOps начинается там, где повторяемые действия автоматизируются.',
+        reference: REFERENCES[2],
         minigame: {
           type: 'configure',
           title: '🔧 ВЫБЕРИ ИНСТРУМЕНТЫ АВТОМАТИЗАЦИИ',
@@ -161,6 +235,7 @@ const QUEST_DATA = {
         progressDelta: 7, angerDelta: 12, stressDelta: 10, correct: false,
         explanation: 'Ошибка. Наем не решает\nпроблему неэффективного процесса.',
         tip: 'DevOps начинается там, где повторяемые действия автоматизируются.',
+        reference: REFERENCES[2],
         minigame: {
           type: 'timer',
           title: 'НОВЫЙ СОТРУДНИК УЧИТСЯ...',
@@ -202,6 +277,7 @@ const QUEST_DATA = {
         progressDelta: 5, angerDelta: 20, stressDelta: 25, correct: false,
         explanation: 'Ошибка. Без данных команда\nтратит время на догадки.',
         tip: 'Если система не оставляет следов, чинить придётся наугад.',
+        reference: REFERENCES[3],
         minigame: {
           type: 'configure',
           title: '🔍 ГДЕ БАГ? (БЕЗ ЛОГОВ)',
@@ -226,6 +302,7 @@ const QUEST_DATA = {
         progressDelta: 15, angerDelta: -5, stressDelta: -10, correct: true,
         explanation: 'Верно! Логи помогают быстро\nнаходить причины проблем.',
         tip: 'Если система не оставляет следов, чинить придётся наугад.',
+        reference: REFERENCES[3],
         minigame: {
           type: 'configure',
           title: '📋 НАЙДИ ОШИБКУ В ЛОГАХ',
@@ -250,6 +327,7 @@ const QUEST_DATA = {
         progressDelta: 0, angerDelta: 25, stressDelta: 15, correct: false,
         explanation: 'Ошибка. Игнорирование проблемы\nразрушает доверие к продукту.',
         tip: 'Если система не оставляет следов, чинить придётся наугад.',
+        reference: REFERENCES[3],
         minigame: {
           type: 'timer',
           title: 'ИГНОРИРУЕМ ПРОБЛЕМУ...',
@@ -291,6 +369,7 @@ const QUEST_DATA = {
         progressDelta: 5, angerDelta: 15, stressDelta: 25, correct: false,
         explanation: 'Частично верно. Это временная\nмера, а не решение.',
         tip: 'Мониторинг нужен не после катастрофы, а до неё.',
+        reference: REFERENCES[4],
         minigame: {
           type: 'bubbles',
           title: '🔴 СЕРВЕР ПАДАЕТ!',
@@ -310,6 +389,7 @@ const QUEST_DATA = {
         progressDelta: 15, angerDelta: -5, stressDelta: -15, correct: true,
         explanation: 'Верно! Мониторинг позволяет\nзамечать проблемы раньше.',
         tip: 'Мониторинг нужен не после катастрофы, а до неё.',
+        reference: REFERENCES[4],
         minigame: {
           type: 'configure',
           title: '📊 НАСТРОЙ АЛЕРТЫ',
@@ -335,6 +415,7 @@ const QUEST_DATA = {
         progressDelta: 0, angerDelta: 20, stressDelta: 20, correct: false,
         explanation: 'Ошибка. Игнорирование инцидента\nтолько ухудшит последствия.',
         tip: 'Мониторинг нужен не после катастрофы, а до неё.',
+        reference: REFERENCES[4],
         minigame: {
           type: 'timer',
           title: 'СКРЫВАЕМ ПРОБЛЕМУ...',
@@ -376,6 +457,7 @@ const QUEST_DATA = {
         progressDelta: 12, angerDelta: 20, stressDelta: 20, correct: false,
         explanation: 'Ошибка. Быстрый релиз без контроля\nприводит к дорогим сбоям.',
         tip: 'Скорость без устойчивости быстро превращается в новые задержки.',
+        reference: REFERENCES[5],
         minigame: {
           type: 'clicker',
           title: 'ДЕПЛОИМ БЕЗ ПРОВЕРОК!',
@@ -402,6 +484,7 @@ const QUEST_DATA = {
         progressDelta: 15, angerDelta: 0, stressDelta: -5, correct: true,
         explanation: 'Верно! DevOps — баланс скорости\nи надёжности.',
         tip: 'Скорость без устойчивости быстро превращается в новые задержки.',
+        reference: REFERENCES[5],
         minigame: {
           type: 'configure',
           title: '⚖ ЧТО ОСТАВИТЬ В PIPELINE?',
@@ -426,6 +509,7 @@ const QUEST_DATA = {
         progressDelta: 3, angerDelta: 10, stressDelta: 10, correct: false,
         explanation: 'Не лучший выбор. Остановка\nне решает управленческую проблему.',
         tip: 'Скорость без устойчивости быстро превращается в новые задержки.',
+        reference: REFERENCES[5],
         minigame: {
           type: 'timer',
           title: 'ЖДЁМ ЛУЧШИХ ВРЕМЁН...',
@@ -467,6 +551,7 @@ const QUEST_DATA = {
         progressDelta: 10, angerDelta: 20, stressDelta: 20, correct: false,
         explanation: 'Ошибка. Ручной выпуск\nповышает вероятность сбоев.',
         tip: 'Хороший релиз — это не удача, а выстроенный процесс.',
+        reference: REFERENCES[6],
         minigame: {
           type: 'clicker',
           title: 'ФИНАЛЬНЫЙ РУЧНОЙ ДЕПЛОЙ',
@@ -494,6 +579,7 @@ const QUEST_DATA = {
         progressDelta: 20, angerDelta: -10, stressDelta: -20, correct: true,
         explanation: 'Идеально! CI/CD + проверки =\nуверенный релиз.',
         tip: 'Хороший релиз — это не удача, а выстроенный процесс.',
+        reference: REFERENCES[6],
         minigame: {
           type: 'clicker',
           title: '🚀 АВТОМАТИЗИРОВАННЫЙ РЕЛИЗ',
@@ -521,6 +607,7 @@ const QUEST_DATA = {
         progressDelta: 5, angerDelta: 10, stressDelta: 10, correct: false,
         explanation: 'Не лучший выбор. DevOps помогает\nвыпускать чаще и безопаснее.',
         tip: 'Хороший релиз — это не удача, а выстроенный процесс.',
+        reference: REFERENCES[6],
         minigame: {
           type: 'timer',
           title: 'ПЕРЕНОСИМ ФИНАЛЬНЫЙ РЕЛИЗ...',
@@ -575,6 +662,18 @@ function initQuestEngine() {
     }))
   }
 
+  function getChoiceCornerPupsHTML() {
+    return `<img src="./src/assets/pups.png" style="position:absolute;top:-10px;left:-18px;width:144px;height:144px;object-fit:contain;pointer-events:none;z-index:20;">`
+  }
+
+  function getResultPupsHTML(choiceIndex = selectedChoice) {
+    const isCorrect = QUEST_DATA[currentQuestId]?.choices?.[choiceIndex]?.correct
+    const src = isCorrect ? './src/assets/pups_smile.png' : './src/assets/pups_no_smile.png'
+    return `<div style="display:flex;justify-content:center;margin-bottom:18px;">
+      <img src="${src}" style="width:264px;height:264px;object-fit:contain;display:block;">
+    </div>`
+  }
+
   // ─── INTRO ─────────────────────────────────────────────────────
   function renderIntro() {
     showSection('quest-intro')
@@ -584,24 +683,18 @@ function initQuestEngine() {
     const el = document.getElementById('quest-intro')
 
     el.innerHTML = `
-      <div style="font-size:11px;color:${slide.color};text-align:center;margin-bottom:16px;">${quest.title}</div>
-      <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:16px;">
+      <div style="font-size:17px;color:${slide.color};text-align:center;margin-bottom:22px;">${quest.title}</div>
+      <div style="display:flex;align-items:flex-start;gap:40px;margin-bottom:32px;">
         <div style="flex-shrink:0;text-align:center;">
-          <div style="width:64px;height:64px;background:#1a1a3e;border:2px solid ${slide.color};border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">
-            <div style="display:flex;gap:6px;">
-              <div style="width:10px;height:9px;background:${slide.color};border-radius:2px;"></div>
-              <div style="width:10px;height:9px;background:${slide.color};border-radius:2px;"></div>
-            </div>
-            <div style="width:24px;height:6px;background:${slide.color};border-radius:2px;margin-top:3px;"></div>
-          </div>
-          <div style="font-size:7px;color:#555;margin-top:4px;">DevBot</div>
+          <img src="./src/assets/DevBot.png" style="width:200px;height:200px;object-fit:contain;display:block;">
+          <div style="font-size:11px;color:#555;margin-top:10px;">DevBot</div>
         </div>
-        <div style="background:#1e1e3e;border:1px solid ${slide.color};border-radius:8px;padding:12px;flex:1;font-size:9px;color:${slide.color};line-height:1.9;white-space:pre-line;">${slide.bot}</div>
+        <div style="background:#1e1e3e;border:1px solid ${slide.color};border-radius:8px;padding:22px;flex:1;font-size:14px;color:${slide.color};line-height:2.2;white-space:pre-line;margin-top:28px;">${slide.bot}</div>
       </div>
-      <div style="background:#161628;border:1px solid #333355;border-radius:8px;padding:16px;margin-bottom:18px;font-size:10px;color:#fff;line-height:1.9;white-space:pre-line;">${slide.text}</div>
+      <div style="background:#161628;border:1px solid #333355;border-radius:8px;padding:28px;margin-bottom:26px;font-size:15px;color:#fff;line-height:2.25;white-space:pre-line;">${slide.text}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:7px;color:#444;">${slideIndex + 1} / ${quest.intro.length}</div>
-        <button id="eq-intro-next" style="padding:10px 20px;background:${isLast ? '#00ff88' : '#00d4ff'};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#0d0d1f;cursor:pointer;">
+        <div style="font-size:11px;color:#444;">${slideIndex + 1} / ${quest.intro.length}</div>
+        <button id="eq-intro-next" style="padding:16px 28px;background:${isLast ? '#00ff88' : '#00d4ff'};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">
           ${isLast ? 'ВЫБРАТЬ →' : 'ДАЛЕЕ →'}
         </button>
       </div>
@@ -616,19 +709,28 @@ function initQuestEngine() {
   function renderChoice() {
     showSection('quest-choice')
     const quest = QUEST_DATA[currentQuestId]
+    const used = window._usedChoices?.[currentQuestId] || new Set()
     const el = document.getElementById('quest-choice')
     el.innerHTML = `
-      <div style="font-size:12px;color:#00d4ff;text-align:center;margin-bottom:10px;">${quest.title}</div>
-      <div style="font-size:8px;color:#666;text-align:center;margin-bottom:18px;">Выбери вариант — и пройди мини-задание</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${quest.choices.map((c, i) => `
-          <button data-ci="${i}" style="padding:14px;background:#2a2a4a;border:1px solid #444466;border-radius:8px;font-family:'Press Start 2P',monospace;font-size:9px;color:#fff;cursor:pointer;text-align:center;line-height:1.9;transition:background 0.2s;">
-            ${c.text.replace('\n', '<br>')}
-          </button>
-        `).join('')}
+      <div style="position:relative;overflow:visible;">
+        ${getChoiceCornerPupsHTML()}
+        <div style="margin-left:120px;margin-bottom:22px;">
+          <div style="font-size:15px;color:#00d4ff;text-align:center;margin-bottom:14px;">${quest.title}</div>
+          <div style="font-size:10px;color:#666;text-align:center;line-height:1.8;">Выбери вариант — и пройди мини-задание</div>
+        </div>
+      </div>
+      <div style="position:relative;background:#161628;border:1px solid #333355;border-radius:8px;padding:32px 22px 22px;overflow:visible;">
+        <div style="display:flex;flex-direction:column;gap:18px;position:relative;z-index:2;">
+          ${quest.choices.map((c, i) => {
+            const isUsed = used.has(i)
+            return `<button data-ci="${i}" ${isUsed ? 'disabled' : ''} style="min-height:120px;padding:30px 22px;background:${isUsed ? '#161622' : '#2a2a4a'};border:1px solid ${isUsed ? '#2a2a3a' : '#444466'};border-radius:8px;font-family:'Press Start 2P',monospace;font-size:17px;color:${isUsed ? '#444455' : '#fff'};cursor:${isUsed ? 'not-allowed' : 'pointer'};text-align:center;line-height:2.05;transition:background 0.2s;">
+              ${isUsed ? '✓ ' : ''}${c.text.replace('\n', '<br>')}
+            </button>`
+          }).join('')}
+        </div>
       </div>
     `
-    el.querySelectorAll('[data-ci]').forEach(btn => {
+    el.querySelectorAll('[data-ci]:not([disabled])').forEach(btn => {
       btn.onmouseenter = () => btn.style.background = '#3a3a6a'
       btn.onmouseleave = () => btn.style.background = '#2a2a4a'
       btn.onclick = () => {
@@ -661,16 +763,17 @@ function initQuestEngine() {
     function draw() {
       if (step >= cfg.steps.length) {
         el.innerHTML = `
-          <div style="font-size:12px;color:#ff8866;text-align:center;margin-bottom:14px;">${cfg.endTitle}</div>
-          <div style="background:#1a0a0a;border:1px solid #cc4400;border-radius:8px;padding:16px;margin-bottom:12px;">
+          ${getResultPupsHTML()}
+          <div style="font-size:18px;color:#ff8866;text-align:center;margin-bottom:20px;">${cfg.endTitle}</div>
+          <div style="background:#1a0a0a;border:1px solid #cc4400;border-radius:8px;padding:26px;margin-bottom:18px;">
             ${cfg.endStats.map(s => `
-              <div style="display:flex;justify-content:space-between;font-size:8px;padding:5px 0;border-bottom:1px solid #2a1a1a;color:#ffaa88;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:10px 0;border-bottom:1px solid #2a1a1a;color:#ffaa88;">
                 <span>${s.label}</span><span style="color:#fff;">${s.value}</span>
               </div>
             `).join('')}
           </div>
-          <div style="font-size:8px;color:#888;margin-bottom:18px;line-height:1.9;text-align:center;white-space:pre-line;">${cfg.endText}</div>
-          <button id="cl-done" style="width:100%;padding:12px;background:#ff8844;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
+          <div style="font-size:12px;color:#888;margin-bottom:26px;line-height:2.25;text-align:center;white-space:pre-line;">${cfg.endText}</div>
+          <button id="cl-done" style="width:100%;padding:18px;background:#ff8844;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
         `
         document.getElementById('cl-done').onclick = () => done(selectedChoice)
         return
@@ -738,9 +841,10 @@ function initQuestEngine() {
       clearTimers()
       const elapsed = Math.floor((Date.now() - start) / 1000)
       el.innerHTML = `
-        <div style="font-size:12px;color:#ff4444;text-align:center;margin-bottom:14px;">${cfg.endTitle}</div>
-        <div style="background:#1a0808;border:1px solid #cc4444;border-radius:8px;padding:16px;margin-bottom:14px;font-size:9px;color:#ffaaaa;line-height:1.9;text-align:center;white-space:pre-line;">${cfg.endText}</div>
-        <button id="eq-timer-done" style="width:100%;padding:12px;background:#ff4444;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
+        ${getResultPupsHTML()}
+        <div style="font-size:18px;color:#ff4444;text-align:center;margin-bottom:20px;">${cfg.endTitle}</div>
+        <div style="background:#1a0808;border:1px solid #cc4444;border-radius:8px;padding:26px;margin-bottom:20px;font-size:13px;color:#ffaaaa;line-height:2.25;text-align:center;white-space:pre-line;">${cfg.endText}</div>
+        <button id="eq-timer-done" style="width:100%;padding:18px;background:#ff4444;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
       `
       document.getElementById('eq-timer-done').onclick = () => done(selectedChoice)
     }
@@ -791,9 +895,10 @@ function initQuestEngine() {
         const text  = isCorrect ? cfg.successText : (cfg.failText || cfg.successText)
         const color = isCorrect ? '#00ff88' : '#ff4444'
         el.innerHTML = `
-          <div style="font-size:13px;color:${color};text-align:center;margin-bottom:14px;">${title}</div>
-          <div style="background:${isCorrect ? '#0a1a0a' : '#1a0a0a'};border:1px solid ${isCorrect ? '#00aa44' : '#cc4444'};border-radius:8px;padding:16px;margin-bottom:16px;font-size:8px;color:${isCorrect ? '#aaffaa' : '#ffaaaa'};line-height:1.9;white-space:pre-line;">${text}</div>
-          <button id="cfg-done" style="width:100%;padding:12px;background:${color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#0d0d1f;cursor:pointer;">${cfg.btnLabel}</button>
+          ${getResultPupsHTML()}
+          <div style="font-size:18px;color:${color};text-align:center;margin-bottom:20px;">${title}</div>
+          <div style="background:${isCorrect ? '#0a1a0a' : '#1a0a0a'};border:1px solid ${isCorrect ? '#00aa44' : '#cc4444'};border-radius:8px;padding:26px;margin-bottom:20px;font-size:12px;color:${isCorrect ? '#aaffaa' : '#ffaaaa'};line-height:2.2;white-space:pre-line;">${text}</div>
+          <button id="cfg-done" style="width:100%;padding:18px;background:${color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">${cfg.btnLabel}</button>
         `
         document.getElementById('cfg-done').onclick = () => done(selectedChoice)
       } else {
@@ -863,9 +968,10 @@ function initQuestEngine() {
     function finish() {
       clearTimers()
       el.innerHTML = `
-        <div style="font-size:12px;color:${cfg.color};text-align:center;margin-bottom:14px;">${cfg.endTitle}</div>
-        <div style="background:#1a0808;border:1px solid ${cfg.color};border-radius:8px;padding:16px;margin-bottom:14px;font-size:9px;color:#ffaaaa;line-height:1.9;text-align:center;white-space:pre-line;">${cfg.endText}</div>
-        <button id="bub-done" style="width:100%;padding:12px;background:${cfg.color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
+        ${getResultPupsHTML()}
+        <div style="font-size:18px;color:${cfg.color};text-align:center;margin-bottom:20px;">${cfg.endTitle}</div>
+        <div style="background:#1a0808;border:1px solid ${cfg.color};border-radius:8px;padding:26px;margin-bottom:20px;font-size:13px;color:#ffaaaa;line-height:2.25;text-align:center;white-space:pre-line;">${cfg.endText}</div>
+        <button id="bub-done" style="width:100%;padding:18px;background:${cfg.color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
       `
       document.getElementById('bub-done').onclick = () => done(selectedChoice)
     }
@@ -926,9 +1032,10 @@ function initQuestEngine() {
         const isCorrect = queue.every((id, i) => id === cfg.correctOrder[i])
         if (isCorrect) {
           el.innerHTML = `
-            <div style="font-size:13px;color:#00ff88;text-align:center;margin-bottom:14px;">${cfg.successTitle}</div>
-            <div style="background:#0a1a0a;border:1px solid #00aa44;border-radius:8px;padding:16px;margin-bottom:16px;font-size:8px;color:#aaffaa;line-height:1.9;white-space:pre-line;">${cfg.successText}</div>
-            <button id="q-done" style="width:100%;padding:12px;background:#00ff88;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#0d0d1f;cursor:pointer;">${cfg.btnLabel}</button>
+            ${getResultPupsHTML()}
+            <div style="font-size:18px;color:#00ff88;text-align:center;margin-bottom:20px;">${cfg.successTitle}</div>
+            <div style="background:#0a1a0a;border:1px solid #00aa44;border-radius:8px;padding:26px;margin-bottom:20px;font-size:12px;color:#aaffaa;line-height:2.2;white-space:pre-line;">${cfg.successText}</div>
+            <button id="q-done" style="width:100%;padding:18px;background:#00ff88;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">${cfg.btnLabel}</button>
           `
           document.getElementById('q-done').onclick = () => done(selectedChoice)
         } else {
@@ -953,11 +1060,12 @@ function initQuestEngine() {
     renderIntro()
   }
 
-  document.getElementById('quest-close').addEventListener('click', () => {
+  const questClose = () => {
     overlay.style.display = 'none'
     clearTimers()
     window.dispatchEvent(new Event('quest-engine-closed'))
-  })
+  }
+  document.getElementById('quest-close').addEventListener('click', questClose)
 }
 
 if (document.readyState === 'loading') {

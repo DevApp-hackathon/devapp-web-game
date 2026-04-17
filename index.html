@@ -6,7 +6,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      background: #0d0d1f;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #game-root {
+      width: 100vw;
+      height: 100vh;
+    }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
 
     #planning-overlay {
       display: none;
@@ -193,6 +209,7 @@
   </style>
 </head>
 <body>
+  <div id="game-root"></div>
   <!-- Шпаргалка с планом -->
   <div id="cheatsheet-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; justify-content:center; align-items:center; font-family:'Press Start 2P',monospace;">
     <div style="background:#0a1a0a; border:2px solid #00aa44; border-radius:8px; padding:28px; width:560px; position:relative;">
@@ -248,7 +265,7 @@
 
   <!-- Quest overlay (laptop) -->
   <div id="quest-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;justify-content:center;align-items:center;font-family:'Press Start 2P',monospace;">
-    <div id="quest-panel" style="background:#12122a;border:2px solid #00d4ff;border-radius:8px;padding:28px;width:680px;max-height:90vh;overflow-y:auto;position:relative;">
+    <div id="quest-panel" style="background:#12122a;border:2px solid #00d4ff;border-radius:8px;padding:28px;width:min(1020px, calc(100vw - 32px));max-height:90vh;overflow-y:auto;position:relative;">
       <button id="quest-close" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#666;font-size:18px;cursor:pointer;font-family:inherit;">✕</button>
       <div id="quest-intro"></div>
       <div id="quest-choice" style="display:none;"></div>

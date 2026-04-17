@@ -2,16 +2,6 @@ import Phaser from 'phaser'
 
 const slides = [
   {
-    bot: 'Привет! Я DevBot —\nтвой ИИ-наставник.',
-    text: 'Ты — основатель стартапа.\nТвоя команда только что написала\nпервую версию продукта.',
-    color: '#00d4ff'
-  },
-  {
-    bot: 'Через 7 шагов —\nфинальный релиз.',
-    text: 'Инвесторы вложили деньги и ждут\nрезультата. У тебя есть офис,\nкоманда и куча решений впереди.',
-    color: '#00d4ff'
-  },
-  {
     bot: 'Каждое решение имеет\nпоследствия.',
     text: 'Следи за двумя шкалами:\n🟢 Прогресс проекта — расти его\n🔴 Недовольство инвесторов — снижай',
     color: '#ffdd00'
@@ -39,6 +29,10 @@ export default class IntroScene extends Phaser.Scene {
     this.slideIndex = 0
   }
 
+  preload() {
+    this.load.image('devbot', './src/assets/DevBot.png')
+  }
+
   create() {
     this.slideIndex = 0
     this.renderSlide()
@@ -62,13 +56,8 @@ export default class IntroScene extends Phaser.Scene {
     const botX = 130
     const botY = 270
 
-    this.add.rectangle(botX, botY, 80, 80, 0x1a1a3e).setStrokeStyle(2, slide.color)
-    this.add.rectangle(botX - 18, botY - 10, 14, 12, slide.color)
-    this.add.rectangle(botX + 18, botY - 10, 14, 12, slide.color)
-    this.add.rectangle(botX, botY + 16, 34, 8, slide.color)
-    this.add.rectangle(botX, botY - 52, 4, 18, 0x888888)
-    this.add.circle(botX, botY - 64, 7, slide.color)
-    this.add.text(botX, botY + 56, 'DevBot', {
+    this.add.image(botX, botY, 'devbot').setDisplaySize(108, 108)
+    this.add.text(botX, botY + 70, 'DevBot', {
       fontSize: '8px',
       color: '#888888',
       fontFamily: '"Press Start 2P"'
@@ -110,7 +99,7 @@ export default class IntroScene extends Phaser.Scene {
     btn.on('pointerout', () => btn.setFillStyle(btnColor))
     btn.on('pointerdown', () => {
       if (isLast) {
-        this.scene.start('GameScene')
+        this.scene.start('TutorialScene')
       } else {
         this.slideIndex++
         this.renderSlide()
