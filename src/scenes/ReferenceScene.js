@@ -11,6 +11,11 @@ export default class ReferenceScene extends Phaser.Scene {
     this.fromGame  = data.fromGame  || false
   }
 
+  glossaryFont(fontSize) {
+    const baseSize = Number.parseInt(fontSize, 10)
+    return Number.isFinite(baseSize) ? `${baseSize + 4}px` : fontSize
+  }
+
   create() {
     if (this.reference) {
       this.showReference(this.reference)
@@ -34,11 +39,11 @@ export default class ReferenceScene extends Phaser.Scene {
     panel.setStrokeStyle(2, 0x4499ff)
 
     this.add.text(640, 78, '📖 ГЛОССАРИЙ', {
-      fontSize: '14px', color: '#4499ff', fontFamily: '"Press Start 2P"'
+      fontSize: this.glossaryFont('14px'), color: '#4499ff', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.text(640, 112, 'Выбери тему', {
-      fontSize: '9px', color: '#666688', fontFamily: '"Press Start 2P"'
+      fontSize: this.glossaryFont('9px'), color: '#666688', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.rectangle(640, 134, innerW, 1, 0x333366)
@@ -62,12 +67,12 @@ export default class ReferenceScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
 
       this.add.text(x, y - 10, ref.title, {
-        fontSize: '9px', color: ref.color, fontFamily: '"Press Start 2P"',
+        fontSize: this.glossaryFont('9px'), color: ref.color, fontFamily: '"Press Start 2P"',
         wordWrap: { width: btnW - 20 }, align: 'center'
       }).setOrigin(0.5)
 
       this.add.text(x, y + 16, `${ref.items.length} терминов`, {
-        fontSize: '7px', color: '#555577', fontFamily: '"Press Start 2P"'
+        fontSize: this.glossaryFont('7px'), color: '#555577', fontFamily: '"Press Start 2P"'
       }).setOrigin(0.5)
 
       bg.on('pointerover',  () => bg.setFillStyle(0x1e1e40))
@@ -79,7 +84,7 @@ export default class ReferenceScene extends Phaser.Scene {
       .setStrokeStyle(2, 0x4499ff)
       .setInteractive({ useHandCursor: true })
     this.add.text(640, 668, '✕ ЗАКРЫТЬ', {
-      fontSize: '11px', color: '#4499ff', fontFamily: '"Press Start 2P"'
+      fontSize: this.glossaryFont('11px'), color: '#4499ff', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     closeBtn.on('pointerover',  () => closeBtn.setFillStyle(0x2a2a5a))
@@ -96,11 +101,11 @@ export default class ReferenceScene extends Phaser.Scene {
     panel.setStrokeStyle(2, 0x4499ff)
 
     this.add.text(640, 78, '📖 МИНИ-СПРАВОЧНИК', {
-      fontSize: '12px', color: '#4499ff', fontFamily: '"Press Start 2P"'
+      fontSize: this.glossaryFont('12px'), color: '#4499ff', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.text(640, 114, reference.title, {
-      fontSize: '16px', color: reference.color || '#ffffff', fontFamily: '"Press Start 2P"'
+      fontSize: this.glossaryFont('16px'), color: reference.color || '#ffffff', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.rectangle(640, 142, 840, 1, 0x333366)
@@ -112,10 +117,10 @@ export default class ReferenceScene extends Phaser.Scene {
       const cy = startY + i * itemH + itemH / 2
       this.add.rectangle(640, cy, 840, itemH - 8, 0x12122a).setStrokeStyle(1, 0x222255)
       this.add.text(258, cy - 18, item.term, {
-        fontSize: '10px', color: '#00d4ff', fontFamily: '"Press Start 2P"'
+        fontSize: this.glossaryFont('10px'), color: '#00d4ff', fontFamily: '"Press Start 2P"'
       })
       this.add.text(640, cy + 12, item.desc, {
-        fontSize: '9px', color: '#aaaacc', fontFamily: '"Press Start 2P"',
+        fontSize: this.glossaryFont('9px'), color: '#aaaacc', fontFamily: '"Press Start 2P"',
         align: 'center', wordWrap: { width: 780 }, lineSpacing: 5
       }).setOrigin(0.5)
     })
@@ -127,7 +132,7 @@ export default class ReferenceScene extends Phaser.Scene {
         .setStrokeStyle(2, 0x555577)
         .setInteractive({ useHandCursor: true })
       this.add.text(510, 646, '← ТЕМЫ', {
-        fontSize: '11px', color: '#888899', fontFamily: '"Press Start 2P"'
+        fontSize: this.glossaryFont('11px'), color: '#888899', fontFamily: '"Press Start 2P"'
       }).setOrigin(0.5)
       backBtn.on('pointerover',  () => backBtn.setFillStyle(0x2a2a4a))
       backBtn.on('pointerout',   () => backBtn.setFillStyle(0x1a1a3a))
@@ -137,7 +142,7 @@ export default class ReferenceScene extends Phaser.Scene {
         .setStrokeStyle(2, 0x4499ff)
         .setInteractive({ useHandCursor: true })
       this.add.text(790, 646, '✕ ЗАКРЫТЬ', {
-        fontSize: '11px', color: '#4499ff', fontFamily: '"Press Start 2P"'
+        fontSize: this.glossaryFont('11px'), color: '#4499ff', fontFamily: '"Press Start 2P"'
       }).setOrigin(0.5)
       closeBtn.on('pointerover',  () => closeBtn.setFillStyle(0x2a2a5a))
       closeBtn.on('pointerout',   () => closeBtn.setFillStyle(0x1a1a3a))
@@ -148,7 +153,7 @@ export default class ReferenceScene extends Phaser.Scene {
         .setStrokeStyle(2, 0x4499ff)
         .setInteractive({ useHandCursor: true })
       this.add.text(640, 646, '✕ ЗАКРЫТЬ', {
-        fontSize: '11px', color: '#4499ff', fontFamily: '"Press Start 2P"'
+        fontSize: this.glossaryFont('11px'), color: '#4499ff', fontFamily: '"Press Start 2P"'
       }).setOrigin(0.5)
       closeBtn.on('pointerover',  () => closeBtn.setFillStyle(0x2a2a5a))
       closeBtn.on('pointerout',   () => closeBtn.setFillStyle(0x1a1a3a))

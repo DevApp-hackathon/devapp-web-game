@@ -25,6 +25,11 @@ export default class TaskOrderScene extends Phaser.Scene {
     super('TaskOrderScene')
   }
 
+  minigameFont(fontSize) {
+    const baseSize = Number.parseInt(fontSize, 10)
+    return Number.isFinite(baseSize) ? `${baseSize + 4}px` : fontSize
+  }
+
   create() {
     this.slots = []       // правый столбец: { x, y, task: null, graphics }
     this.cards = []       // карточки
@@ -35,13 +40,13 @@ export default class TaskOrderScene extends Phaser.Scene {
 
     // Заголовок
     this.add.text(640, 35, 'ПЛАН НА ДЕНЬ', {
-      fontSize: '16px',
+      fontSize: this.minigameFont('16px'),
       color: '#00d4ff',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.text(640, 72, 'Расставь задачи в правильном порядке', {
-      fontSize: '8px',
+      fontSize: this.minigameFont('8px'),
       color: '#888888',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
@@ -49,14 +54,14 @@ export default class TaskOrderScene extends Phaser.Scene {
     // Заголовки столбцов
     this.add.rectangle(300, 105, 240, 34, 0x1a1a3e).setStrokeStyle(1, 0x333366)
     this.add.text(300, 105, 'ЗАДАЧИ', {
-      fontSize: '10px',
+      fontSize: this.minigameFont('10px'),
       color: '#aaaaaa',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.rectangle(900, 105, 240, 34, 0x1a2e1a).setStrokeStyle(1, 0x336633)
     this.add.text(900, 105, 'МОЙ ПЛАН', {
-      fontSize: '10px',
+      fontSize: this.minigameFont('10px'),
       color: '#aaaaaa',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
@@ -68,7 +73,7 @@ export default class TaskOrderScene extends Phaser.Scene {
       const bg = this.add.rectangle(slotX, y, 240, 56, 0x111122)
         .setStrokeStyle(1, 0x333355)
       this.add.text(slotX - 100, y, `${i + 1}.`, {
-        fontSize: '9px',
+        fontSize: this.minigameFont('9px'),
         color: '#444466',
         fontFamily: '"Press Start 2P"'
       }).setOrigin(0, 0.5)
@@ -86,7 +91,7 @@ export default class TaskOrderScene extends Phaser.Scene {
     // Кнопка проверить
     const checkBtn = this.add.rectangle(640, 660, 240, 46, 0x00d4ff).setInteractive()
     this.add.text(640, 660, 'ПРОВЕРИТЬ', {
-      fontSize: '12px',
+      fontSize: this.minigameFont('12px'),
       color: '#0d0d1f',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
@@ -96,7 +101,7 @@ export default class TaskOrderScene extends Phaser.Scene {
 
     // Подсказка
     this.add.text(640, 625, 'Перетащи карточки в правый столбец', {
-      fontSize: '7px',
+      fontSize: this.minigameFont('7px'),
       color: '#444466',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
@@ -110,7 +115,7 @@ export default class TaskOrderScene extends Phaser.Scene {
       .setInteractive()
 
     const label = this.add.text(0, 0, task.text, {
-      fontSize: '9px',
+      fontSize: this.minigameFont('9px'),
       color: '#ffffff',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -202,7 +207,7 @@ export default class TaskOrderScene extends Phaser.Scene {
     const existing = this.children.getByName('msg')
     if (existing) existing.destroy()
     const msg = this.add.text(640, 600, text, {
-      fontSize: '10px',
+      fontSize: this.minigameFont('10px'),
       color,
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -217,16 +222,16 @@ export default class TaskOrderScene extends Phaser.Scene {
     this.children.removeAll(true)
     this.add.rectangle(640, 360, 1280, 720, 0x0d1f0d)
     this.add.text(640, 240, '✓ ВЕРНО!', {
-      fontSize: '28px', color: '#00ff88', fontFamily: '"Press Start 2P"'
+      fontSize: this.minigameFont('28px'), color: '#00ff88', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
     this.add.text(640, 340, 'Ты знаешь правильный\nпорядок DevOps-задач.\nВперёд — применяй это в офисе!', {
-      fontSize: '11px', color: '#ffffff', fontFamily: '"Press Start 2P"',
+      fontSize: this.minigameFont('11px'), color: '#ffffff', fontFamily: '"Press Start 2P"',
       align: 'center', lineSpacing: 10
     }).setOrigin(0.5)
 
     const btn = this.add.rectangle(640, 470, 260, 52, 0x00ff88).setInteractive()
     this.add.text(640, 470, 'В ОФИС! →', {
-      fontSize: '13px', color: '#0d1f0d', fontFamily: '"Press Start 2P"'
+      fontSize: this.minigameFont('13px'), color: '#0d1f0d', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
     btn.on('pointerdown', () => this.scene.start('GameScene'))
   }
@@ -236,11 +241,11 @@ export default class TaskOrderScene extends Phaser.Scene {
     this.add.rectangle(640, 360, 1280, 720, 0x1f0d0d)
 
     this.add.text(640, 35, 'НЕ СОВСЕМ...', {
-      fontSize: '16px', color: '#ff4444', fontFamily: '"Press Start 2P"'
+      fontSize: this.minigameFont('16px'), color: '#ff4444', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.text(640, 75, 'Правильный порядок DevOps-задач:', {
-      fontSize: '8px', color: '#aaaaaa', fontFamily: '"Press Start 2P"'
+      fontSize: this.minigameFont('8px'), color: '#aaaaaa', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     TASKS.forEach((task, i) => {
@@ -249,21 +254,21 @@ export default class TaskOrderScene extends Phaser.Scene {
       this.add.rectangle(640, y, 660, 48, isError ? 0x3a0a0a : 0x0a1a0a)
         .setStrokeStyle(1, isError ? 0xff4444 : 0x00aa44)
       this.add.text(320, y, `${i + 1}.`, {
-        fontSize: '9px', color: isError ? '#ff4444' : '#00aa44', fontFamily: '"Press Start 2P"'
+        fontSize: this.minigameFont('9px'), color: isError ? '#ff4444' : '#00aa44', fontFamily: '"Press Start 2P"'
       }).setOrigin(0, 0.5)
       this.add.text(660, y, task.text.replace('\n', ' '), {
-        fontSize: '9px', color: isError ? '#ff8888' : '#88ff88', fontFamily: '"Press Start 2P"', lineSpacing: 4
+        fontSize: this.minigameFont('9px'), color: isError ? '#ff8888' : '#88ff88', fontFamily: '"Press Start 2P"', lineSpacing: 4
       }).setOrigin(0.5)
       if (isError) {
         this.add.text(940, y, '← ошибка', {
-          fontSize: '7px', color: '#ff4444', fontFamily: '"Press Start 2P"'
+          fontSize: this.minigameFont('7px'), color: '#ff4444', fontFamily: '"Press Start 2P"'
         }).setOrigin(0, 0.5)
       }
     })
 
     const btn = this.add.rectangle(640, 660, 260, 46, 0xff4444).setInteractive()
     this.add.text(640, 660, 'ПОПРОБОВАТЬ', {
-      fontSize: '10px', color: '#ffffff', fontFamily: '"Press Start 2P"'
+      fontSize: this.minigameFont('10px'), color: '#ffffff', fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
     btn.on('pointerover', () => btn.setFillStyle(0xcc2222))
     btn.on('pointerout', () => btn.setFillStyle(0xff4444))

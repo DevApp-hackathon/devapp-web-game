@@ -256,9 +256,9 @@ const QUEST_DATA = {
     ]
   },
 
-  // ── МОНИТОРИНГ: Логирование ────────────────────────────────────
+  // ── АНАЛИЗ ЛОГОВ: Логирование ─────────────────────────────────
   3: {
-    title: 'МОНИТОР: ЛОГИРОВАНИЕ',
+    title: 'АНАЛИЗ ЛОГОВ: ЛОГИРОВАНИЕ',
     intro: [
       {
         bot: 'Без логов — ты слепой\nв тёмной комнате.',
@@ -348,9 +348,9 @@ const QUEST_DATA = {
     ]
   },
 
-  // ── ТЕЛЕФОН: Мониторинг ────────────────────────────────────────
+  // ── МОНИТОР: Мониторинг ───────────────────────────────────────
   4: {
-    title: 'ТЕЛЕФОН: МОНИТОРИНГ',
+    title: 'МОНИТОР: МОНИТОРИНГ',
     intro: [
       {
         bot: 'Мониторинг = видеть\nсистему изнутри.',
@@ -629,6 +629,10 @@ const QUEST_DATA = {
   }
 }
 
+function scaleQuestEngineFonts(content) {
+  return content.replace(/font-size:\s*(\d+)px/gi, (_, size) => `font-size:${Number(size) + 4}px`)
+}
+
 // ─── ENGINE ────────────────────────────────────────────────────────
 function initQuestEngine() {
   let currentQuestId = null
@@ -682,7 +686,7 @@ function initQuestEngine() {
     const isLast = slideIndex === quest.intro.length - 1
     const el = document.getElementById('quest-intro')
 
-    el.innerHTML = `
+    el.innerHTML = scaleQuestEngineFonts(`
       <div style="font-size:17px;color:${slide.color};text-align:center;margin-bottom:22px;">${quest.title}</div>
       <div style="display:flex;align-items:flex-start;gap:40px;margin-bottom:32px;">
         <div style="flex-shrink:0;text-align:center;">
@@ -698,7 +702,7 @@ function initQuestEngine() {
           ${isLast ? 'ВЫБРАТЬ →' : 'ДАЛЕЕ →'}
         </button>
       </div>
-    `
+    `)
     document.getElementById('eq-intro-next').onclick = () => {
       if (isLast) renderChoice()
       else { slideIndex++; renderIntro() }
@@ -711,7 +715,7 @@ function initQuestEngine() {
     const quest = QUEST_DATA[currentQuestId]
     const used = window._usedChoices?.[currentQuestId] || new Set()
     const el = document.getElementById('quest-choice')
-    el.innerHTML = `
+    el.innerHTML = scaleQuestEngineFonts(`
       <div style="position:relative;overflow:visible;">
         ${getChoiceCornerPupsHTML()}
         <div style="margin-left:120px;margin-bottom:22px;">
@@ -729,7 +733,7 @@ function initQuestEngine() {
           }).join('')}
         </div>
       </div>
-    `
+    `)
     el.querySelectorAll('[data-ci]:not([disabled])').forEach(btn => {
       btn.onmouseenter = () => btn.style.background = '#3a3a6a'
       btn.onmouseleave = () => btn.style.background = '#2a2a4a'
@@ -762,7 +766,7 @@ function initQuestEngine() {
 
     function draw() {
       if (step >= cfg.steps.length) {
-        el.innerHTML = `
+        el.innerHTML = scaleQuestEngineFonts(`
           ${getResultPupsHTML()}
           <div style="font-size:18px;color:#ff8866;text-align:center;margin-bottom:20px;">${cfg.endTitle}</div>
           <div style="background:#1a0a0a;border:1px solid #cc4400;border-radius:8px;padding:26px;margin-bottom:18px;">
@@ -774,14 +778,14 @@ function initQuestEngine() {
           </div>
           <div style="font-size:12px;color:#888;margin-bottom:26px;line-height:2.25;text-align:center;white-space:pre-line;">${cfg.endText}</div>
           <button id="cl-done" style="width:100%;padding:18px;background:#ff8844;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
-        `
+        `)
         document.getElementById('cl-done').onclick = () => done(selectedChoice)
         return
       }
 
       const s = cfg.steps[step]
       const isLast = cfg.steps[step].time === '—' || step === cfg.steps.length - 1
-      el.innerHTML = `
+      el.innerHTML = scaleQuestEngineFonts(`
         <div style="font-size:10px;color:#ff8866;text-align:center;margin-bottom:10px;">${cfg.title}</div>
         <div style="font-size:7px;color:#555;margin-bottom:12px;">Шаг ${step + 1} из ${cfg.steps.length}</div>
         <div style="background:#0d0d1a;border:1px solid #333;border-radius:6px;padding:14px;margin-bottom:10px;">
@@ -795,7 +799,7 @@ function initQuestEngine() {
         <button id="cl-next" style="width:100%;padding:12px;background:#2a2a4a;border:1px solid #444;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:9px;color:#fff;cursor:pointer;">
           ${step < cfg.steps.length - 1 ? 'ВЫПОЛНИТЬ ►' : 'ЗАВЕРШИТЬ ►'}
         </button>
-      `
+      `)
       document.getElementById('cl-next').onclick = () => { step++; draw() }
     }
     draw()
@@ -807,12 +811,12 @@ function initQuestEngine() {
     const el = document.getElementById('quest-mg')
     const start = Date.now()
 
-    el.innerHTML = `
+    el.innerHTML = scaleQuestEngineFonts(`
       <div style="font-size:10px;color:#ffaa00;text-align:center;margin-bottom:8px;">${cfg.title}</div>
       <div style="text-align:center;font-size:20px;color:#fff;margin-bottom:12px;" id="eq-timer">0 сек</div>
       <div id="eq-events" style="min-height:180px;display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
       <button id="eq-early" style="width:100%;padding:11px;background:#ffaa00;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:9px;color:#0d0d1f;cursor:pointer;">${cfg.earlyLabel}</button>
-    `
+    `)
 
     const timerEl = document.getElementById('eq-timer')
     const t = setInterval(() => {
@@ -824,7 +828,7 @@ function initQuestEngine() {
     cfg.events.forEach(ev => {
       const tid = setTimeout(() => {
         const div = document.createElement('div')
-        div.style.cssText = 'padding:9px 12px;background:#1f1000;border:1px solid #cc5500;border-radius:6px;font-size:8px;color:#ffaa66;line-height:1.7;'
+        div.style.cssText = scaleQuestEngineFonts('padding:9px 12px;background:#1f1000;border:1px solid #cc5500;border-radius:6px;font-size:8px;color:#ffaa66;line-height:1.7;')
         div.textContent = ev.text
         const list = document.getElementById('eq-events')
         if (list) list.appendChild(div)
@@ -840,12 +844,12 @@ function initQuestEngine() {
     function finish() {
       clearTimers()
       const elapsed = Math.floor((Date.now() - start) / 1000)
-      el.innerHTML = `
+      el.innerHTML = scaleQuestEngineFonts(`
         ${getResultPupsHTML()}
         <div style="font-size:18px;color:#ff4444;text-align:center;margin-bottom:20px;">${cfg.endTitle}</div>
         <div style="background:#1a0808;border:1px solid #cc4444;border-radius:8px;padding:26px;margin-bottom:20px;font-size:13px;color:#ffaaaa;line-height:2.25;text-align:center;white-space:pre-line;">${cfg.endText}</div>
         <button id="eq-timer-done" style="width:100%;padding:18px;background:#ff4444;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
-      `
+      `)
       document.getElementById('eq-timer-done').onclick = () => done(selectedChoice)
     }
   }
@@ -856,7 +860,7 @@ function initQuestEngine() {
     configSelected = new Set()
 
     function draw() {
-      el.innerHTML = `
+      el.innerHTML = scaleQuestEngineFonts(`
         <div style="font-size:10px;color:#00ff88;text-align:center;margin-bottom:8px;">${cfg.title}</div>
         <div style="font-size:8px;color:#666;text-align:center;margin-bottom:14px;line-height:1.7;">${cfg.subtitle}</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
@@ -868,7 +872,7 @@ function initQuestEngine() {
         </div>
         <div id="cfg-msg" style="font-size:8px;text-align:center;min-height:14px;margin-bottom:10px;"></div>
         <button id="cfg-check" style="width:100%;padding:11px;background:#00d4ff;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#0d0d1f;cursor:pointer;">ПРОВЕРИТЬ</button>
-      `
+      `)
       el.querySelectorAll('[data-oid]').forEach(btn => {
         btn.onclick = () => {
           const id = parseInt(btn.dataset.oid)
@@ -894,12 +898,12 @@ function initQuestEngine() {
         const title = isCorrect ? (cfg.successTitle || '✓ ВЕРНО!') : (cfg.failTitle || 'НЕ УГАДАЛ')
         const text  = isCorrect ? cfg.successText : (cfg.failText || cfg.successText)
         const color = isCorrect ? '#00ff88' : '#ff4444'
-        el.innerHTML = `
+        el.innerHTML = scaleQuestEngineFonts(`
           ${getResultPupsHTML()}
           <div style="font-size:18px;color:${color};text-align:center;margin-bottom:20px;">${title}</div>
           <div style="background:${isCorrect ? '#0a1a0a' : '#1a0a0a'};border:1px solid ${isCorrect ? '#00aa44' : '#cc4444'};border-radius:8px;padding:26px;margin-bottom:20px;font-size:12px;color:${isCorrect ? '#aaffaa' : '#ffaaaa'};line-height:2.2;white-space:pre-line;">${text}</div>
           <button id="cfg-done" style="width:100%;padding:18px;background:${color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">${cfg.btnLabel}</button>
-        `
+        `)
         document.getElementById('cfg-done').onclick = () => done(selectedChoice)
       } else {
         document.getElementById('cfg-msg').innerHTML = `<span style="color:#ffaa00">${cfg.failText || 'Не совсем. Попробуй ещё раз.'}</span>`
@@ -917,7 +921,7 @@ function initQuestEngine() {
     let active = 0
     let spawned = 0
 
-    el.innerHTML = `
+    el.innerHTML = scaleQuestEngineFonts(`
       <div style="font-size:10px;color:${cfg.color};text-align:center;margin-bottom:6px;">${cfg.title}</div>
       <div style="font-size:8px;color:#666;text-align:center;margin-bottom:10px;">${cfg.subtitle}</div>
       <div id="bub-field" style="position:relative;height:220px;background:#0d0d1a;border:1px solid #333;border-radius:8px;overflow:hidden;margin-bottom:10px;"></div>
@@ -925,7 +929,7 @@ function initQuestEngine() {
         <span>Зафиксировано: <span id="bub-score" style="color:#00ff88;">0</span></span>
         <span>Активных: <span id="bub-active" style="color:#ff4444;">0</span></span>
       </div>
-    `
+    `)
 
     function spawn() {
       if (spawned >= cfg.total) return
@@ -944,9 +948,9 @@ function initQuestEngine() {
       const bub = document.createElement('div')
       const x = 10 + Math.random() * 80
       const y = 10 + Math.random() * 70
-      bub.style.cssText = `position:absolute;left:${x}%;top:${y}%;transform:translate(-50%,-50%);
+      bub.style.cssText = scaleQuestEngineFonts(`position:absolute;left:${x}%;top:${y}%;transform:translate(-50%,-50%);
         padding:6px 10px;background:${cfg.color};border-radius:20px;font-family:'Press Start 2P',monospace;
-        font-size:8px;color:#fff;cursor:pointer;white-space:nowrap;animation:pulse 0.5s infinite alternate;`
+        font-size:8px;color:#fff;cursor:pointer;white-space:nowrap;animation:pulse 0.5s infinite alternate;`)
       bub.textContent = cfg.label
       bub.onclick = () => {
         bub.remove()
@@ -967,12 +971,12 @@ function initQuestEngine() {
 
     function finish() {
       clearTimers()
-      el.innerHTML = `
+      el.innerHTML = scaleQuestEngineFonts(`
         ${getResultPupsHTML()}
         <div style="font-size:18px;color:${cfg.color};text-align:center;margin-bottom:20px;">${cfg.endTitle}</div>
         <div style="background:#1a0808;border:1px solid ${cfg.color};border-radius:8px;padding:26px;margin-bottom:20px;font-size:13px;color:#ffaaaa;line-height:2.25;text-align:center;white-space:pre-line;">${cfg.endText}</div>
         <button id="bub-done" style="width:100%;padding:18px;background:${cfg.color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">${cfg.btnLabel}</button>
-      `
+      `)
       document.getElementById('bub-done').onclick = () => done(selectedChoice)
     }
 
@@ -989,7 +993,7 @@ function initQuestEngine() {
     let queue = []
 
     function draw() {
-      el.innerHTML = `
+      el.innerHTML = scaleQuestEngineFonts(`
         <div style="font-size:10px;color:#00ff88;text-align:center;margin-bottom:8px;">${cfg.title}</div>
         <div style="font-size:8px;color:#666;text-align:center;margin-bottom:14px;line-height:1.7;">${cfg.subtitle}</div>
         <div style="display:flex;gap:12px;margin-bottom:12px;">
@@ -1016,7 +1020,7 @@ function initQuestEngine() {
           <button id="q-reset" style="flex:1;padding:10px;background:#333;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:8px;color:#aaa;cursor:pointer;">СБРОСИТЬ</button>
           <button id="q-check" style="flex:2;padding:10px;background:#00d4ff;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:9px;color:#0d0d1f;cursor:pointer;">ПРОВЕРИТЬ</button>
         </div>
-      `
+      `)
       el.querySelectorAll('[data-qid]').forEach(btn => {
         btn.onclick = () => { queue.push(parseInt(btn.dataset.qid)); draw() }
       })
@@ -1031,12 +1035,12 @@ function initQuestEngine() {
         }
         const isCorrect = queue.every((id, i) => id === cfg.correctOrder[i])
         if (isCorrect) {
-          el.innerHTML = `
+          el.innerHTML = scaleQuestEngineFonts(`
             ${getResultPupsHTML()}
             <div style="font-size:18px;color:#00ff88;text-align:center;margin-bottom:20px;">${cfg.successTitle}</div>
             <div style="background:#0a1a0a;border:1px solid #00aa44;border-radius:8px;padding:26px;margin-bottom:20px;font-size:12px;color:#aaffaa;line-height:2.2;white-space:pre-line;">${cfg.successText}</div>
             <button id="q-done" style="width:100%;padding:18px;background:#00ff88;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">${cfg.btnLabel}</button>
-          `
+          `)
           document.getElementById('q-done').onclick = () => done(selectedChoice)
         } else {
           const errors = queue.map((id, i) => id !== cfg.correctOrder[i] ? i : -1).filter(i => i >= 0)

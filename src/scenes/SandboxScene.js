@@ -8,8 +8,15 @@ export default class SandboxScene extends Phaser.Scene {
 
   init(data) {
     this.gameState = data.gameState
+    if (!(this.gameState.sandboxReviewedThemes instanceof Set)) {
+      const reviewed = Array.isArray(this.gameState.sandboxReviewedThemes)
+        ? this.gameState.sandboxReviewedThemes
+        : []
+      this.gameState.sandboxReviewedThemes = new Set(reviewed)
+    }
+
     this.topics = getSandboxTopics(this.gameState, 3)
-    this.reviewedThemes = new Set()
+    this.reviewedThemes = this.gameState.sandboxReviewedThemes
     this.quizIndex = 0
     this.quizCorrect = 0
     this.quizResults = []
@@ -29,6 +36,11 @@ export default class SandboxScene extends Phaser.Scene {
     this.children.removeAll(true)
   }
 
+  sandboxFont(fontSize) {
+    const baseSize = Number.parseInt(fontSize, 10)
+    return Number.isFinite(baseSize) ? `${baseSize + 4}px` : fontSize
+  }
+
   drawFrame(title, subtitle, color = 0x4499ff) {
     this.clearScreen()
     const colorHex = `#${color.toString(16).padStart(6, '0')}`
@@ -38,25 +50,26 @@ export default class SandboxScene extends Phaser.Scene {
     panel.setStrokeStyle(2, color)
 
     this.add.text(640, 72, title, {
-      fontSize: '28px',
+      fontSize: this.sandboxFont('28px'),
       color: colorHex,
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     if (subtitle) {
       this.add.text(640, 108, subtitle, {
-        fontSize: '12px',
+        fontSize: this.sandboxFont('11px'),
         color: '#666688',
         fontFamily: '"Press Start 2P"',
         align: 'center',
-        lineSpacing: 6
+        lineSpacing: 6,
+        wordWrap: { width: 840, useAdvancedWrap: true }
       }).setOrigin(0.5)
     }
 
     this.add.rectangle(640, 136, 900, 1, 0x333366)
 
     const close = this.add.text(1088, 74, '✕', {
-      fontSize: '16px',
+      fontSize: this.sandboxFont('16px'),
       color: '#666688',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5).setInteractive({ useHandCursor: true })
@@ -71,7 +84,7 @@ export default class SandboxScene extends Phaser.Scene {
     if (border !== null) btn.setStrokeStyle(2, border)
 
     const txt = this.add.text(x, y, label, {
-      fontSize,
+      fontSize: this.sandboxFont(fontSize),
       color: textColor,
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -92,13 +105,13 @@ export default class SandboxScene extends Phaser.Scene {
       this.add.image(230, 218, 'pups-smile').setDisplaySize(130, 130)
 
       this.add.text(640, 280, 'ОШИБОК ДЛЯ РАЗБОРА ПОКА НЕТ', {
-        fontSize: '14px',
+        fontSize: this.sandboxFont('14px'),
         color: '#00ff88',
         fontFamily: '"Press Start 2P"'
       }).setOrigin(0.5)
 
       this.add.text(640, 360, 'Ты пока не накопил повторяющихся ошибок.\nСделай пару выборов в офисе — и песочница\nсоберёт паттерны для разбора.', {
-        fontSize: '14px',
+        fontSize: this.sandboxFont('14px'),
         color: '#aaaacc',
         fontFamily: '"Press Start 2P"',
         align: 'center',
@@ -119,13 +132,13 @@ export default class SandboxScene extends Phaser.Scene {
       card.setStrokeStyle(2, accent)
 
       this.add.text(292, y - 30, topic.title, {
-        fontSize: '12px',
+        fontSize: this.sandboxFont('12px'),
         color: topic.color,
         fontFamily: '"Press Start 2P"'
       }).setOrigin(0, 0.5)
 
       this.add.text(292, y + 14, topic.summary, {
-        fontSize: '10px',
+        fontSize: this.sandboxFont('10px'),
         color: '#aab0dd',
         fontFamily: '"Press Start 2P"',
         align: 'left',
@@ -135,7 +148,7 @@ export default class SandboxScene extends Phaser.Scene {
 
       this.add.rectangle(930, y - 22, 120, 30, accent, 0.18).setStrokeStyle(1, accent)
       this.add.text(930, y - 22, `${topic.count} раз`, {
-        fontSize: '9px',
+        fontSize: this.sandboxFont('9px'),
         color: topic.color,
         fontFamily: '"Press Start 2P"'
       }).setOrigin(0.5)
@@ -143,7 +156,7 @@ export default class SandboxScene extends Phaser.Scene {
       if (this.reviewedThemes.has(topic.id)) {
         this.add.rectangle(930, y + 24, 180, 38, 0x0f2c17).setStrokeStyle(2, 0x00aa44)
         this.add.text(930, y + 24, '✓ РАЗОБРАНО', {
-          fontSize: '9px',
+          fontSize: this.sandboxFont('9px'),
           color: '#88ff88',
           fontFamily: '"Press Start 2P"'
         }).setOrigin(0.5)
@@ -165,7 +178,7 @@ export default class SandboxScene extends Phaser.Scene {
     } else {
       this.add.rectangle(840, 648, 280, 44, 0x1a1a26).setStrokeStyle(2, 0x333344)
       this.add.text(840, 648, 'СНАЧАЛА РАЗБЕРИ\nВСЕ ОШИБКИ', {
-        fontSize: '10px',
+        fontSize: this.sandboxFont('10px'),
         color: '#555577',
         fontFamily: '"Press Start 2P"',
         align: 'center',
@@ -187,7 +200,7 @@ export default class SandboxScene extends Phaser.Scene {
     this.add.image(182, 214, 'pups-no-smile').setDisplaySize(136, 136).setDepth(3)
 
     this.add.text(640, 190, topic.reproduceTitle, {
-      fontSize: '13px',
+      fontSize: this.sandboxFont('13px'),
       color: topic.color,
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
@@ -195,7 +208,7 @@ export default class SandboxScene extends Phaser.Scene {
     const prompt = this.add.rectangle(640, 290, 780, 120, 0x15152d)
     prompt.setStrokeStyle(2, accent)
     this.add.text(640, 290, topic.reproduceText, {
-      fontSize: '10px',
+      fontSize: this.sandboxFont('10px'),
       color: '#d7dbff',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -222,7 +235,7 @@ export default class SandboxScene extends Phaser.Scene {
     const impactBox = this.add.rectangle(640, 218, 780, 90, 0x2a0d0d)
     impactBox.setStrokeStyle(2, 0xff6666)
     this.add.text(640, 218, topic.instantImpact, {
-      fontSize: '12px',
+      fontSize: this.sandboxFont('12px'),
       color: '#ffaaaa',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -233,12 +246,12 @@ export default class SandboxScene extends Phaser.Scene {
     const whyBox = this.add.rectangle(640, 360, 820, 170, 0x12122a)
     whyBox.setStrokeStyle(2, accent)
     this.add.text(640, 314, 'ПОЧЕМУ ЭТО НЕПРАВИЛЬНО', {
-      fontSize: '10px',
+      fontSize: this.sandboxFont('10px'),
       color: topic.color,
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
     this.add.text(640, 384, topic.whyWrong, {
-      fontSize: '9px',
+      fontSize: this.sandboxFont('9px'),
       color: '#d7dbff',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -262,7 +275,7 @@ export default class SandboxScene extends Phaser.Scene {
     this.add.image(182, 214, 'pups-smile').setDisplaySize(136, 136).setDepth(3)
 
     this.add.text(640, 196, topic.fixTitle, {
-      fontSize: '13px',
+      fontSize: this.sandboxFont('13px'),
       color: '#00ff88',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
@@ -270,7 +283,7 @@ export default class SandboxScene extends Phaser.Scene {
     const fixBox = this.add.rectangle(640, 328, 820, 220, 0x0d2116)
     fixBox.setStrokeStyle(2, 0x00aa44)
     this.add.text(640, 328, topic.fixText, {
-      fontSize: '10px',
+      fontSize: this.sandboxFont('10px'),
       color: '#baffca',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -300,12 +313,12 @@ export default class SandboxScene extends Phaser.Scene {
     const questionBox = this.add.rectangle(640, 224, 790, 120, 0x12122a)
     questionBox.setStrokeStyle(2, accent)
     this.add.text(640, 188, topic.title, {
-      fontSize: '10px',
+      fontSize: this.sandboxFont('10px'),
       color: topic.color,
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
     this.add.text(640, 244, topic.quizQuestion, {
-      fontSize: '11px',
+      fontSize: this.sandboxFont('11px'),
       color: '#ffffff',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -320,7 +333,7 @@ export default class SandboxScene extends Phaser.Scene {
         .setStrokeStyle(2, 0x333355)
         .setInteractive({ useHandCursor: true })
       const txt = this.add.text(640, y, option.text, {
-        fontSize: '10px',
+        fontSize: this.sandboxFont('10px'),
         color: '#ffffff',
         fontFamily: '"Press Start 2P"',
         align: 'center',
@@ -363,31 +376,31 @@ export default class SandboxScene extends Phaser.Scene {
       }
     })
 
-    const modalDim = this.add.rectangle(640, 360, 980, 650, 0x000000, 0.42)
+    const modalDim = this.add.rectangle(640, 360, 1280, 720, 0x000000, 0.28)
       .setDepth(40)
       .setInteractive()
 
-    const modal = this.add.rectangle(640, 438, 760, 222, isCorrect ? 0x0d2116 : 0x2a0d0d)
+    const modal = this.add.rectangle(640, 360, 720, 232, isCorrect ? 0x0d2116 : 0x2a0d0d)
       .setDepth(41)
     modal.setStrokeStyle(2, isCorrect ? 0x00aa44 : 0xff6666)
 
-    this.add.text(640, 374, isCorrect ? 'ВЕРНО' : 'НЕ СОВСЕМ', {
-      fontSize: '12px',
+    this.add.text(640, 306, isCorrect ? 'ВЕРНО' : 'НЕ СОВСЕМ', {
+      fontSize: this.sandboxFont('12px'),
       color: isCorrect ? '#00ff88' : '#ff6666',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5).setDepth(42)
 
-    this.add.text(640, 438, topic.quizExplain, {
-      fontSize: '9px',
+    this.add.text(640, 362, topic.quizExplain, {
+      fontSize: this.sandboxFont('9px'),
       color: isCorrect ? '#baffca' : '#ffd0d0',
       fontFamily: '"Press Start 2P"',
       align: 'center',
       lineSpacing: 8,
-      wordWrap: { width: 660 }
+      wordWrap: { width: 610 }
     }).setOrigin(0.5).setDepth(42)
 
     const label = this.quizIndex < this.topics.length - 1 ? 'ДАЛЕЕ →' : 'ЗАВЕРШИТЬ →'
-    const next = this.drawButton(640, 506, 260, 46, label, 0x00d4ff, '#0d0d1f', () => {
+    const next = this.drawButton(640, 424, 260, 46, label, 0x00d4ff, '#0d0d1f', () => {
       this.quizIndex += 1
       this.showQuizQuestion()
     }, 0x00d4ff, '9px')
@@ -401,13 +414,13 @@ export default class SandboxScene extends Phaser.Scene {
     this.add.image(182, 220, this.quizCorrect === this.topics.length ? 'pups-smile' : 'pups').setDisplaySize(150, 150).setDepth(3)
 
     this.add.text(640, 226, `Исправлено: ${this.quizCorrect} из ${this.topics.length}`, {
-      fontSize: '16px',
+      fontSize: this.sandboxFont('16px'),
       color: '#00ff88',
       fontFamily: '"Press Start 2P"'
     }).setOrigin(0.5)
 
     this.add.text(640, 332, 'Теперь можно вернуться в офис и проверить,\nкак меняются решения, когда видно свои\nповторяющиеся ошибки по паттернам.', {
-      fontSize: '10px',
+      fontSize: this.sandboxFont('10px'),
       color: '#d7dbff',
       fontFamily: '"Press Start 2P"',
       align: 'center',
@@ -419,14 +432,18 @@ export default class SandboxScene extends Phaser.Scene {
       const lineY = 440 + index * 54
       const ok = !!this.quizResults[index]
       const color = ok ? '#88ff88' : '#ffaa66'
-      this.add.rectangle(640, lineY, 760, 42, ok ? 0x0d2116 : 0x2a2010).setStrokeStyle(1, ok ? 0x00aa44 : 0xaa6600)
-      this.add.text(240, lineY, topic.title, {
-        fontSize: '9px',
+      const rowWidth = 840
+      const rowLeft = 640 - rowWidth / 2
+      const rowRight = 640 + rowWidth / 2
+
+      this.add.rectangle(640, lineY, rowWidth, 42, ok ? 0x0d2116 : 0x2a2010).setStrokeStyle(1, ok ? 0x00aa44 : 0xaa6600)
+      this.add.text(rowLeft + 24, lineY, topic.title, {
+        fontSize: this.sandboxFont('8px'),
         color: '#ffffff',
         fontFamily: '"Press Start 2P"'
       }).setOrigin(0, 0.5)
-      this.add.text(980, lineY, ok ? 'закреплено' : 'нужно ещё повторить', {
-        fontSize: '8px',
+      this.add.text(rowRight - 24, lineY, ok ? 'закреплено' : 'нужно ещё повторить', {
+        fontSize: this.sandboxFont('7px'),
         color,
         fontFamily: '"Press Start 2P"'
       }).setOrigin(1, 0.5)

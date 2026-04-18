@@ -15,7 +15,17 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.gameState = { progress: 0, anger: 0, stress: 0, step: 0, completedQuests: new Set(), usedChoices: {}, usedFun: new Set(), mistakeStats: {} }
+    this.gameState = {
+      progress: 0,
+      anger: 0,
+      stress: 0,
+      step: 0,
+      completedQuests: new Set(),
+      usedChoices: {},
+      usedFun: new Set(),
+      mistakeStats: {},
+      sandboxReviewedThemes: new Set(),
+    }
     window._usedChoices = this.gameState.usedChoices
     this.burnoutPending = false
     this.burnoutActive  = false
@@ -59,10 +69,10 @@ export default class GameScene extends Phaser.Scene {
       // --- квесты (trigger) ---
       { x: 65,   y: 310, w: 120, h: 200, label: 'Сервер',        type: 'trigger', id: 1, marker: { text: 'СЕРВЕР',         x: 78,   y: 180 } },
       { x: 322,  y: 150, w: 320, h: 130, label: 'Доска задач',   type: 'board',   id: 2, marker: { hidden: true } },
-      { x: 674,  y: 100, w: 280, h: 90,  label: 'Мониторинг',    type: 'trigger', id: 3, marker: { text: 'МОНИТОРИНГ',     x: 674,  y: 100 } },
+      { x: 674,  y: 100, w: 280, h: 90,  label: 'Мониторинг',    type: 'trigger', id: 4, marker: { text: 'МОНИТОРИНГ',     x: 674,  y: 100 } },
       { x: 1006, y: 100, w: 320, h: 90,  label: 'Git репо',      type: 'trigger', id: 5, marker: { text: 'GIT РЕПО',       x: 1046, y: 100 } },
       { x: 310,  y: 290, w: 280, h: 140, label: 'Ноутбук',       type: 'trigger', id: 0, marker: { text: 'НОУТБУК',        x: 330,  y: 315 } },
-      { x: 916,  y: 290, w: 200, h: 180, label: 'Анализ логов',  type: 'trigger', id: 4, marker: { text: 'АНАЛИЗ\nЛОГОВ',  x: 916,  y: 340 } },
+      { x: 916,  y: 290, w: 200, h: 180, label: 'Анализ логов',  type: 'trigger', id: 3, marker: { text: 'АНАЛИЗ\nЛОГОВ',  x: 916,  y: 340 } },
       { x: 140,  y: 480, w: 220, h: 220, label: 'Whiteboard',    type: 'trigger', id: 2, marker: { text: 'МАРКЕРНАЯ\nДОСКА',x: 160,  y: 610 } },
       // --- отдых (fun) ---
       { x: 661,  y: 260, w: 230, h: 160, label: 'Кофе ☕',      type: 'fun', effect: () => this.applyFun(-15, 'Выпил кофе. -15 стресс!'), marker: { text: 'КОФЕ',          x: 691,  y: 315 } },

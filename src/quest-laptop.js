@@ -59,6 +59,10 @@ function shuffle(arr) {
   return a
 }
 
+function scaleQuestLaptopFonts(content) {
+  return content.replace(/font-size:\s*(\d+)px/gi, (_, size) => `font-size:${Number(size) + 4}px`)
+}
+
 function initLaptopQuest() {
   let slideIndex = 0
   let selectedChoiceIndex = null
@@ -108,7 +112,7 @@ function initLaptopQuest() {
     const isLast = slideIndex === INTRO_SLIDES.length - 1
     const container = document.getElementById('quest-intro')
 
-    container.innerHTML = `
+    container.innerHTML = scaleQuestLaptopFonts(`
       <div style="display:flex;align-items:flex-start;gap:40px;margin-bottom:32px;">
         <div style="flex-shrink:0;text-align:center;">
           <img src="./src/assets/DevBot.png" style="width:208px;height:208px;object-fit:contain;display:block;">
@@ -125,7 +129,7 @@ function initLaptopQuest() {
           ${isLast ? 'ВЫБРАТЬ →' : 'ДАЛЕЕ →'}
         </button>
       </div>
-    `
+    `)
     document.getElementById('intro-next').onclick = () => {
       if (isLast) renderChoice()
       else { slideIndex++; renderIntro() }
@@ -137,7 +141,7 @@ function initLaptopQuest() {
     show('quest-choice')
     const used = window._usedChoices?.[0] || new Set()
     const container = document.getElementById('quest-choice')
-    container.innerHTML = `
+    container.innerHTML = scaleQuestLaptopFonts(`
       <div style="position:relative;overflow:visible;">
         ${getChoiceCornerPupsHTML()}
         <div style="margin-left:120px;margin-bottom:24px;">
@@ -157,7 +161,7 @@ function initLaptopQuest() {
           }).join('')}
         </div>
       </div>
-    `
+    `)
     container.querySelectorAll('[data-i]:not([disabled])').forEach(btn => {
       btn.onmouseenter = () => btn.style.background = '#3a3a6a'
       btn.onmouseleave = () => btn.style.background = '#2a2a4a'
@@ -180,7 +184,7 @@ function initLaptopQuest() {
 
     function renderStep() {
       if (stepIndex >= MANUAL_STEPS.length) {
-        container.innerHTML = `
+        container.innerHTML = scaleQuestLaptopFonts(`
           ${getResultPupsHTML(selectedChoiceIndex)}
           <div style="font-size:18px;color:#ff4444;text-align:center;margin-bottom:22px;">ДЕПЛОЙ ЗАВЕРШЁН</div>
           <div style="background:#1f0808;border:1px solid #ff4444;border-radius:8px;padding:30px;margin-bottom:22px;font-size:13px;color:#ff8888;line-height:2.45;">
@@ -195,7 +199,7 @@ function initLaptopQuest() {
           <button id="manual-done" style="width:100%;padding:18px;background:#ff4444;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">
             ПОНЯЛ, УЧТУ →
           </button>
-        `
+        `)
         document.getElementById('manual-done').onclick = () => done(selectedChoiceIndex)
         return
       }
@@ -203,7 +207,7 @@ function initLaptopQuest() {
       const step = MANUAL_STEPS[stepIndex]
       if (step.time !== '—') totalTime += parseInt(step.time) || 0
 
-      container.innerHTML = `
+      container.innerHTML = scaleQuestLaptopFonts(`
         <div style="font-size:11px;color:#ff8866;text-align:center;margin-bottom:14px;">РУЧНОЙ ДЕПЛОЙ</div>
         <div style="font-size:8px;color:#666;margin-bottom:16px;">Шаг ${stepIndex + 1} из ${MANUAL_STEPS.length}</div>
         <div style="background:#0d0d20;border:1px solid #333;border-radius:6px;padding:16px;margin-bottom:12px;">
@@ -219,7 +223,7 @@ function initLaptopQuest() {
         <button id="step-next" style="width:100%;padding:12px;background:#2a2a4a;border:1px solid #444;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;cursor:pointer;">
           ${stepIndex < MANUAL_STEPS.length - 1 ? 'ВЫПОЛНИТЬ ►' : 'ГОТОВО ►'}
         </button>
-      `
+      `)
       document.getElementById('step-next').onclick = () => {
         stepIndex++
         renderStep()
@@ -242,7 +246,7 @@ function initLaptopQuest() {
     const container = document.getElementById('mg-cicd')
     const shuffled = shuffle(PIPELINE_CARDS)
 
-    container.innerHTML = `
+    container.innerHTML = scaleQuestLaptopFonts(`
       <div style="font-size:11px;color:#00ff88;text-align:center;margin-bottom:8px;">СОБЕРИ CI/CD ПАЙПЛАЙН</div>
       <div style="font-size:8px;color:#666;text-align:center;margin-bottom:18px;">Перетащи шаги в правильном порядке выполнения</div>
 
@@ -271,7 +275,7 @@ function initLaptopQuest() {
       </div>
       <div id="cicd-msg" style="font-size:8px;text-align:center;min-height:16px;margin-bottom:10px;"></div>
       <button id="cicd-check" style="width:100%;padding:12px;background:#00d4ff;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:11px;color:#0d0d1f;cursor:pointer;">ПРОВЕРИТЬ</button>
-    `
+    `)
 
     attachCICDEvents()
   }
@@ -344,7 +348,7 @@ function initLaptopQuest() {
 
   function showCICDSuccess() {
     const container = document.getElementById('mg-cicd')
-    container.innerHTML = `
+    container.innerHTML = scaleQuestLaptopFonts(`
       ${getResultPupsHTML(selectedChoiceIndex)}
       <div style="font-size:18px;color:#00ff88;text-align:center;margin-bottom:22px;">✓ ПАЙПЛАЙН СОБРАН!</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap;">
@@ -363,7 +367,7 @@ function initLaptopQuest() {
       <button id="cicd-done" style="width:100%;padding:18px;background:#00ff88;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#0d0d1f;cursor:pointer;">
         ОТЛИЧНО! →
       </button>
-    `
+    `)
     document.getElementById('cicd-done').onclick = () => done(selectedChoiceIndex)
   }
 
@@ -374,14 +378,14 @@ function initLaptopQuest() {
     delayStart = Date.now()
     const container = document.getElementById('mg-delay')
 
-    container.innerHTML = `
+    container.innerHTML = scaleQuestLaptopFonts(`
       <div style="font-size:11px;color:#ffaa00;text-align:center;margin-bottom:8px;">ЖДЁМ ИДЕАЛЬНОГО МОМЕНТА...</div>
       <div style="text-align:center;font-size:22px;color:#fff;margin-bottom:14px;" id="delay-timer">0 сек</div>
       <div id="debt-list" style="min-height:200px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px;"></div>
       <button id="delay-release" style="width:100%;padding:12px;background:#ffaa00;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#0d0d1f;cursor:pointer;">
         ВЫПУСТИТЬ СЕЙЧАС
       </button>
-    `
+    `)
 
     // Таймер
     const timerEl = document.getElementById('delay-timer')
@@ -395,7 +399,7 @@ function initLaptopQuest() {
     DEBT_CARDS.forEach(card => {
       const t = setTimeout(() => {
         const debtEl = document.createElement('div')
-        debtEl.style.cssText = 'padding:10px 14px;background:#1f1000;border:1px solid #cc5500;border-radius:6px;font-size:9px;color:#ffaa66;animation:fadein 0.4s;'
+        debtEl.style.cssText = scaleQuestLaptopFonts('padding:10px 14px;background:#1f1000;border:1px solid #cc5500;border-radius:6px;font-size:9px;color:#ffaa66;animation:fadein 0.4s;')
         debtEl.textContent = card.text
         const list = document.getElementById('debt-list')
         if (list) list.appendChild(debtEl)
@@ -425,7 +429,7 @@ function initLaptopQuest() {
         color = '#ff4444'
       }
 
-      container.innerHTML = `
+      container.innerHTML = scaleQuestLaptopFonts(`
         ${getResultPupsHTML(selectedChoiceIndex)}
         <div style="font-size:18px;color:#ffaa00;text-align:center;margin-bottom:22px;">ВРЕМЯ ВЫШЛО</div>
         <div style="background:#1f0d00;border:1px solid #cc5500;border-radius:8px;padding:28px;margin-bottom:22px;font-size:13px;color:#ffaa66;line-height:2.35;text-align:center;white-space:pre-line;">
@@ -438,7 +442,7 @@ function initLaptopQuest() {
         <button id="delay-done" style="width:100%;padding:18px;background:#ff8844;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:14px;color:#fff;cursor:pointer;">
           ПОНЯЛ →
         </button>
-      `
+      `)
       document.getElementById('delay-done').onclick = () => done(selectedChoiceIndex)
     }
   }

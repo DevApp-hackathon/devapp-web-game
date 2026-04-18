@@ -73,6 +73,10 @@ function shuffle(arr) {
   return a
 }
 
+function scalePlanningFonts(content) {
+  return content.replace(/font-size:\s*(\d+)px/gi, (_, size) => `font-size:${Number(size) + 4}px`)
+}
+
 function initPlanning() {
   const overlay    = document.getElementById('planning-overlay')
   const colTasks   = document.getElementById('col-tasks')
@@ -193,10 +197,10 @@ function initPlanning() {
     // Кнопка ?
     const qBtn = document.createElement('button')
     qBtn.textContent = '?'
-    qBtn.style.cssText = `position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    qBtn.style.cssText = scalePlanningFonts(`position:absolute;right:6px;top:50%;transform:translateY(-50%);
       width:20px;height:20px;border-radius:50%;border:none;
       background:rgba(255,255,255,0.25);color:#fff;font-family:'Press Start 2P',monospace;
-      font-size:8px;cursor:pointer;line-height:1;padding:0;transition:background 0.15s;`
+      font-size:8px;cursor:pointer;line-height:1;padding:0;transition:background 0.15s;`)
     qBtn.onmouseenter = () => qBtn.style.background = 'rgba(255,255,255,0.5)'
     qBtn.onmouseleave = () => qBtn.style.background = 'rgba(255,255,255,0.25)'
     qBtn.onclick = (e) => {
@@ -229,7 +233,7 @@ function initPlanning() {
       document.body.appendChild(modal)
     }
 
-    modal.innerHTML = `
+    modal.innerHTML = scalePlanningFonts(`
       <div style="background:#12122a;border:2px solid ${task.color};border-radius:8px;padding:28px;width:620px;max-height:88vh;overflow-y:auto;position:relative;">
         <button id="task-info-close" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#666;font-size:18px;cursor:pointer;font-family:inherit;">✕</button>
 
@@ -261,7 +265,7 @@ function initPlanning() {
 
         <button id="task-info-ok" style="width:100%;margin-top:20px;padding:12px;background:${task.color};border:none;border-radius:6px;font-family:'Press Start 2P',monospace;font-size:11px;color:#fff;cursor:pointer;">ПОНЯТНО →</button>
       </div>
-    `
+    `)
 
     modal.style.display = 'flex'
     document.getElementById('task-info-close').onclick = () => modal.style.display = 'none'
@@ -296,7 +300,7 @@ function initPlanning() {
 
       // Объяснение порядка
       const explanation = document.createElement('div')
-      explanation.style.cssText = 'margin: 12px 0; padding: 14px; background: #0a1a0a; border: 1px solid #00aa44; border-radius: 6px; font-size: 8px; color: #aaffaa; line-height: 2; text-align: left;'
+      explanation.style.cssText = scalePlanningFonts('margin: 12px 0; padding: 14px; background: #0a1a0a; border: 1px solid #00aa44; border-radius: 6px; font-size: 8px; color: #aaffaa; line-height: 2; text-align: left;')
       explanation.innerHTML = `
         <div style="color:#00ff88; margin-bottom:10px;">Почему именно такой порядок?</div>
         <b>1. CI/CD</b> — сначала выстраиваем pipeline доставки кода, иначе всё остальное не доедет до пользователя.<br>
