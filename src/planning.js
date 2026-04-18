@@ -64,6 +64,12 @@ const TASKS = [
   },
 ]
 
+const PREFILLED_PLAN_SLOTS = new Map([
+  [0, 0],
+  [2, 2],
+  [6, 6],
+])
+
 function shuffle(arr) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -75,6 +81,14 @@ function shuffle(arr) {
 
 function scalePlanningFonts(content) {
   return content.replace(/font-size:\s*(\d+)px/gi, (_, size) => `font-size:${Number(size) + 4}px`)
+}
+
+function createInitialPlanSlots() {
+  const slots = new Array(TASKS.length).fill(null)
+  PREFILLED_PLAN_SLOTS.forEach((taskId, slotIndex) => {
+    slots[slotIndex] = taskId
+  })
+  return slots
 }
 
 function initPlanning() {
@@ -106,7 +120,7 @@ function initPlanning() {
     message.textContent = ''
 
     // Перемешанные карточки (только те что не в плане)
-    const slotTaskIds = window._planSlots ? window._planSlots.map(s => s) : new Array(TASKS.length).fill(null)
+    const slotTaskIds = window._planSlots ? window._planSlots.map(s => s) : createInitialPlanSlots()
     window._planSlots = slotTaskIds
 
     const shuffled = shuffle(TASKS)
@@ -130,40 +144,43 @@ function initPlanning() {
       const taskId = slotTaskIds[i]
       if (taskId !== null && taskId !== undefined) {
         const task = TASKS.find(t => t.id === taskId)
-        const card = makeCard(task, i)
+        const card = makeCard(task, i, PREFILLED_PLAN_SLOTS.has(i))
         slot.appendChild(card)
       }
 
-      slot.addEventListener('dragover', e => {
-        e.preventDefault()
-        slot.classList.add('drag-over')
-      })
-      slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'))
-      slot.addEventListener('drop', e => {
-        e.preventDefault()
-        slot.classList.remove('drag-over')
-        if (draggedId === null) return
+      if (PREFILLED_PLAN_SLOTS.has(i)) {
+        slot.style.borderColor = '#00aa44'
+        slot.style.background = '#102318'
+      } else {
+        slot.addEventListener('dragover', e => {
+          e.preventDefault()
+          slot.classList.add('drag-over')
+        })
+        slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'))
+        slot.addEventListener('drop', e => {
+          e.preventDefault()
+          slot.classList.remove('drag-over')
+          if (draggedId === null) return
 
-        const existingTaskId = slotTaskIds[i]
+          const existingTaskId = slotTaskIds[i]
 
-        // Если в слоте уже есть карточка — свапаем или возвращаем
-        if (existingTaskId !== null && existingTaskId !== undefined) {
-          if (typeof draggedFrom === 'number') {
-            slotTaskIds[draggedFrom] = existingTaskId
-          } else {
-            slotTaskIds[draggedFrom] = null // вернём в tasks
-          }
-        } else {
-          if (typeof draggedFrom === 'number') {
+          // Если в слоте уже есть карточка — свапаем или возвращаем
+          if (existingTaskId !== null && existingTaskId !== undefined) {
+            if (typeof draggedFrom === 'number') {
+              slotTaskIds[draggedFrom] = existingTaskId
+            } else {
+              slotTaskIds[draggedFrom] = null // вернём в tasks
+            }
+          } else if (typeof draggedFrom === 'number') {
             slotTaskIds[draggedFrom] = null
           }
-        }
 
-        slotTaskIds[i] = draggedId
-        draggedId = null
-        draggedFrom = null
-        render()
-      })
+          slotTaskIds[i] = draggedId
+          draggedId = null
+          draggedFrom = null
+          render()
+        })
+      }
 
       colPlan.appendChild(slot)
     })
@@ -182,13 +199,17 @@ function initPlanning() {
     })
   }
 
-  function makeCard(task, from) {
+  function makeCard(task, from, locked = false) {
     const card = document.createElement('div')
     card.className = 'task-card'
     card.style.background = task.color
     card.style.position = 'relative'
     card.style.paddingRight = '32px'
-    card.draggable = true
+    card.draggable = !locked
+    if (locked) {
+      card.style.cursor = 'default'
+      card.style.boxShadow = 'inset 0 0 0 2px rgba(255,255,255,0.28)'
+    }
 
     const label = document.createElement('span')
     label.textContent = task.text
@@ -210,15 +231,17 @@ function initPlanning() {
     }
     card.appendChild(qBtn)
 
-    card.addEventListener('dragstart', (e) => {
-      if (e.target === qBtn) { e.preventDefault(); return }
-      draggedId = task.id
-      draggedFrom = from
-      setTimeout(() => card.classList.add('dragging'), 0)
-    })
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging')
-    })
+    if (!locked) {
+      card.addEventListener('dragstart', (e) => {
+        if (e.target === qBtn) { e.preventDefault(); return }
+        draggedId = task.id
+        draggedFrom = from
+        setTimeout(() => card.classList.add('dragging'), 0)
+      })
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging')
+      })
+    }
     return card
   }
 
@@ -344,7 +367,7 @@ function initPlanning() {
     // Очищаем только неверные слоты
     if (window._errorsToFix) {
       window._errorsToFix.forEach(i => {
-        window._planSlots[i] = null
+        if (!PREFILLED_PLAN_SLOTS.has(i)) window._planSlots[i] = null
       })
       window._errorsToFix = null
     }
@@ -358,7 +381,7 @@ function initPlanning() {
 
   // Открытие извне (из Phaser)
   window.openPlanning = () => {
-    window._planSlots = new Array(TASKS.length).fill(null)
+    window._planSlots = createInitialPlanSlots()
     render()
     overlay.classList.add('active')
   }
