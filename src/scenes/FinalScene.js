@@ -5,6 +5,12 @@ export default class FinalScene extends Phaser.Scene {
     super('FinalScene')
   }
 
+  preload() {
+    if (!this.textures.exists('devbot')) {
+      this.load.image('devbot', './src/assets/DevBot.png')
+    }
+  }
+
   init(data) {
     this.gameState = data.gameState
   }

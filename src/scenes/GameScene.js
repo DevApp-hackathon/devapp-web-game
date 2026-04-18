@@ -31,7 +31,9 @@ export default class GameScene extends Phaser.Scene {
     this.burnoutActive  = false
     this.hudHintPending = false
     this.hintsShown     = { controls: false, hud: false }
+    this.autoFinalQuestPending = false
     this.questOpen      = false
+    this.finalQuestId   = 6
     this.requiredQuestIds = [0, 1, 2, 3, 4, 5]
 
     this.events.on('resume', () => {
@@ -42,6 +44,16 @@ export default class GameScene extends Phaser.Scene {
             this.burnoutPending = false
             this.hudHintPending = false
             this.triggerBurnout()
+          }
+        })
+        return
+      }
+      if (this.shouldAutoLaunchFinalQuest()) {
+        this.autoFinalQuestPending = true
+        this.time.delayedCall(180, () => {
+          this.autoFinalQuestPending = false
+          if (!this.scene.isPaused('GameScene') && this.shouldAutoLaunchFinalQuest()) {
+            this.launchQuestById(this.finalQuestId)
           }
         })
         return
@@ -317,6 +329,37 @@ export default class GameScene extends Phaser.Scene {
     })
   }
 
+  hasCompletedRequiredQuests() {
+    return this.requiredQuestIds.every((questId) => this.gameState.completedQuests.has(questId))
+  }
+
+  shouldAutoLaunchFinalQuest() {
+    return this.hasCompletedRequiredQuests()
+      && !this.gameState.completedQuests.has(this.finalQuestId)
+      && !this.questOpen
+      && this.gameState.anger < 100
+  }
+
+  launchQuestById(questId) {
+    if ((this.gameState.usedChoices[questId]?.size || 0) >= 3) {
+      this.popupText.setText('Все варианты исчерпаны!').setVisible(true)
+      this.interactCooldown = true
+      this.time.delayedCall(1500, () => { this.popupText.setVisible(false); this.interactCooldown = false })
+      return
+    }
+
+    window._usedChoices = this.gameState.usedChoices
+    this.questOpen = true
+    if (window.openQuest) window.openQuest(questId)
+    this.scene.pause()
+    window.addEventListener('quest-engine-done', (e) => {
+      const s = window._allScenarioData
+      if (s && s[e.detail.questId]) { this._applyQuestResult(s[e.detail.questId][e.detail.choiceIndex], e.detail.questId, e.detail.choiceIndex) }
+      else                          { this.questOpen = false; this.scene.resume('GameScene') }
+    }, { once: true })
+    window.addEventListener('quest-engine-closed', () => { this.questOpen = false; this.scene.resume('GameScene') }, { once: true })
+  }
+
   applyFun(stressDelta, message) {
     if (this.interactCooldown) return
     this.gameState.stress = Math.max(0, Math.min(100, this.gameState.stress + stressDelta))
@@ -327,7 +370,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   interactWithObject(obj) {
-    if (this.interactCooldown || this.questOpen) return
+    if (this.interactCooldown || this.questOpen || this.autoFinalQuestPending) return
 
     if (obj.type === 'fun') {
       if (this.gameState.usedFun.has(obj.label)) {
@@ -370,22 +413,7 @@ export default class GameScene extends Phaser.Scene {
         window.addEventListener('quest-laptop-closed', () => { this.questOpen = false; this.scene.resume('GameScene') }, { once: true })
 
       } else {
-        if ((this.gameState.usedChoices[obj.id]?.size || 0) >= 3) {
-          this.popupText.setText('Все варианты исчерпаны!').setVisible(true)
-          this.interactCooldown = true
-          this.time.delayedCall(1500, () => { this.popupText.setVisible(false); this.interactCooldown = false })
-          return
-        }
-        window._usedChoices = this.gameState.usedChoices
-        this.questOpen = true
-        if (window.openQuest) window.openQuest(obj.id)
-        this.scene.pause()
-        window.addEventListener('quest-engine-done', (e) => {
-          const s = window._allScenarioData
-          if (s && s[e.detail.questId]) { this._applyQuestResult(s[e.detail.questId][e.detail.choiceIndex], e.detail.questId, e.detail.choiceIndex) }
-          else                          { this.questOpen = false; this.scene.resume('GameScene') }
-        }, { once: true })
-        window.addEventListener('quest-engine-closed', () => { this.questOpen = false; this.scene.resume('GameScene') }, { once: true })
+        this.launchQuestById(obj.id)
       }
     }
   }
@@ -409,7 +437,7 @@ export default class GameScene extends Phaser.Scene {
     this.updateHUD()
     this.scene.resume('GameScene')
 
-    if (!this.burnoutPending && (this.gameState.step >= 7 || this.gameState.anger >= 100)) {
+    if (!this.burnoutPending && (questId === this.finalQuestId || this.gameState.anger >= 100)) {
       this.time.delayedCall(120, () => {
         this.scene.stop()
         this.scene.start('FinalScene', { gameState: this.gameState })
